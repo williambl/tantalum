@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "com.williambl.tantalum",
+    "id": "tantalum",
+    "version": "${version}",
+    "metadata": {
+      "name": "Tantalum",
+      "description": "",
+      "contributors": {},
+      "contact": {},
+      "license": "MPL-2.0",
+      "icon": "assets/tantalum/icon.png"
+    },
+    "depends": [
+      "quilt_loader",
+      "qsl",
+      "minecraft"
+    ],
+    "entrypoints": {
+      "init_client": [
+        "com.williambl.tantalum.client.TantalumClient"
+      ],
+      "init": [
+        "com.williambl.tantalum.Tantalum"
+      ]
+    },
+    "intermediate_mappings":"net.fabricmc:intermediary"
+  },
+  "mixin": [
+    "tantalum.mixins.json"
+  ],
+  "minecraft": {
+    "environment": "*"
+  }
+}
