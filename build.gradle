@@ -31,18 +31,23 @@ dependencies {
     modImplementation "org.quiltmc:quilt-loader:${project.loader_version}"
 
     modImplementation "org.quiltmc:qsl:${qsl_version}"
-    modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${qfapi_version}"
+    modImplementation ("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${qfapi_version}") {
+        exclude(module: "fabric-loader")
+    }
 
     modImplementation ("RebornCore:RebornCore-1.18:${rc_version}") {
         exclude(group: "net.fabricmc.fabric-api")
+        exclude(module: "fabric-loader")
     }
 
     modApi include("teamreborn:energy:${energy_version}"){
         exclude(group: "net.fabricmc.fabric-api")
+        exclude(module: "fabric-loader")
     }
 
-    modRuntimeOnly("TechReborn:TechReborn-1.18:${tr_version}"){
+    modImplementation("TechReborn:TechReborn-1.18:${tr_version}"){
         exclude(group: "net.fabricmc.fabric-api")
+        exclude(module: "fabric-loader")
     }
 }
 
@@ -60,6 +65,7 @@ tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+
     // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
