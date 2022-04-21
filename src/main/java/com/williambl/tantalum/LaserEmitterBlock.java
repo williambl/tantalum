@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
 public class LaserEmitterBlock extends BaseEntityBlock {
@@ -44,6 +43,11 @@ public class LaserEmitterBlock extends BaseEntityBlock {
         return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite().getOpposite());
     }
 
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -57,8 +61,13 @@ public class LaserEmitterBlock extends BaseEntityBlock {
     }
 
     private static void tickEntity(Level level, BlockPos blockPos, BlockState blockState, LaserEmitterBlockEntity blockEntity) {
-        if (blockEntity.getEnergy() >= 40) {
-            blockEntity.useEnergy(40);
+        blockEntity.tick(level, blockPos, blockState, blockEntity);
+        var posPastEndOfLaser = blockEntity.getPosPastEndOfLaser();
+        if (blockEntity.shouldPlaceLaserAt(posPastEndOfLaser)) {
+            if (blockEntity.getEnergy() >= 40) {
+                blockEntity.useEnergy(40);
+                level.setBlockAndUpdate(posPastEndOfLaser, Blocks.COBWEB.defaultBlockState());
+            }
         }
     }
 }

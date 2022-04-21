@@ -2,15 +2,11 @@ package com.williambl.tantalum;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     public LaserEmitterBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -35,5 +31,19 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     @Override
     protected boolean canProvideEnergy(@Nullable Direction side) {
         return false;
+    }
+
+    public BlockPos getPosPastEndOfLaser() {
+        var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
+        var pos = this.getBlockPos().relative(dir);
+        while (this.level.getBlockState(pos).is(Blocks.COBWEB)) {
+            pos = pos.relative(dir);
+        }
+
+        return pos;
+    }
+
+    public boolean shouldPlaceLaserAt(BlockPos queryPos) {
+        return this.level.getBlockState(queryPos).isAir();
     }
 }
