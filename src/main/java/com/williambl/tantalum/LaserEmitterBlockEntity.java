@@ -36,7 +36,8 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     public BlockPos getPosPastEndOfLaser() {
         var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
         var pos = this.getBlockPos().relative(dir);
-        while (this.level.getBlockState(pos).is(Tantalum.LASER_BLOCK)) {
+        int offset = 0;
+        while (++offset <= LaserEmitterBlock.LASER_LENGTH && this.level.isLoaded(pos) && this.level.getBlockState(pos).is(Tantalum.LASER_BLOCK)) {
             pos = pos.relative(dir);
         }
 

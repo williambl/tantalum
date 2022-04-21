@@ -68,6 +68,7 @@ public class LaserEmitterBlock extends BaseEntityBlock {
     private static void tickEntity(Level level, BlockPos blockPos, BlockState blockState, LaserEmitterBlockEntity blockEntity) {
         blockEntity.tick(level, blockPos, blockState, blockEntity);
         var posPastEndOfLaser = blockEntity.getPosPastEndOfLaser();
+        level.scheduleTick(blockPos.relative(blockState.getValue(FACING)), Tantalum.LASER_BLOCK, 1);
         if (blockEntity.shouldPlaceLaserAt(posPastEndOfLaser)) {
             if (blockEntity.getEnergy() >= 40) {
                 blockEntity.useEnergy(40);
@@ -75,4 +76,6 @@ public class LaserEmitterBlock extends BaseEntityBlock {
             }
         }
     }
+
+    public static int LASER_LENGTH = 32;
 }

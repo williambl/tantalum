@@ -56,13 +56,13 @@ public class LaserBlock extends DirectionalBlock {
 
     private boolean isValid(BlockState state, Level level, BlockPos pos) {
         var checkingPos = pos.mutable();
-        var dir = state.getValue(FACING);
+        var dir = state.getValue(FACING).getOpposite();
 
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < LaserEmitterBlock.LASER_LENGTH; i++) {
             checkingPos.move(dir);
             var checkingState = level.getBlockState(checkingPos);
 
-            if (checkingState.is(Tantalum.LASER_EMITTER_BLOCK) && checkingState.getValue(FACING) == dir && ((LaserEmitterBlockEntity)level.getBlockEntity(checkingPos)).getEnergy() > 0) {
+            if (checkingState.is(Tantalum.LASER_EMITTER_BLOCK) && checkingState.getValue(FACING) == dir.getOpposite() && ((LaserEmitterBlockEntity)level.getBlockEntity(checkingPos)).getEnergy() > 0) {
                 return true;
             }
 
