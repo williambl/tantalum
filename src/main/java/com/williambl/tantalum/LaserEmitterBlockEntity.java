@@ -15,7 +15,7 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
 
     @Override
     public long getBaseMaxPower() {
-        return 40;
+        return 80;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
 
     @Override
     public long getBaseMaxInput() {
-        return 40;
+        return 80;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     public BlockPos getPosPastEndOfLaser() {
         var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
         var pos = this.getBlockPos().relative(dir);
-        while (this.level.getBlockState(pos).is(Blocks.COBWEB)) {
+        while (this.level.getBlockState(pos).is(Tantalum.LASER_BLOCK)) {
             pos = pos.relative(dir);
         }
 

@@ -27,7 +27,6 @@ public class LaserEmitterBlock extends BaseEntityBlock {
         builder.add(FACING);
     }
 
-
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -41,6 +40,12 @@ public class LaserEmitterBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite().getOpposite());
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        super.onRemove(state, level, pos, newState, isMoving);
+        level.scheduleTick(pos.relative(state.getValue(FACING)), Tantalum.LASER_BLOCK, 1);
     }
 
     @Override
@@ -66,7 +71,7 @@ public class LaserEmitterBlock extends BaseEntityBlock {
         if (blockEntity.shouldPlaceLaserAt(posPastEndOfLaser)) {
             if (blockEntity.getEnergy() >= 40) {
                 blockEntity.useEnergy(40);
-                level.setBlockAndUpdate(posPastEndOfLaser, Blocks.COBWEB.defaultBlockState());
+                level.setBlockAndUpdate(posPastEndOfLaser, Tantalum.LASER_BLOCK.defaultBlockState().setValue(FACING, blockState.getValue(FACING)));
             }
         }
     }
