@@ -70,6 +70,8 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     }
 
     private void recalculateLasers() {
+        var oldLasers = this.lasers();
+
         this.lasers.clear();
         LaserData lastLaser = null;
         var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
@@ -82,7 +84,9 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
 
             this.lasers.add(lastLaser);
         }
-        this.sync();
+        if (!oldLasers.equals(this.lasers)) {
+            this.sync();
+        }
     }
 
     private @Nullable LaserData calculateLaserData(BlockPos from, Direction dir) {
