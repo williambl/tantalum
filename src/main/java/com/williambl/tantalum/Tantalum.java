@@ -1,5 +1,7 @@
 package com.williambl.tantalum;
 
+import com.williambl.tantalum.lasers.FireLaser;
+import com.williambl.tantalum.lasers.RegularLaser;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -20,7 +22,8 @@ public class Tantalum implements ModInitializer {
     public static Logger LOGGER = LoggerFactory.getLogger(Tantalum.class);
 
     public static Registry<LaserType> LASER_REGISTRY = FabricRegistryBuilder.createSimple(LaserType.class, id("laser")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
-    public static LaserType REGULAR_LASER = Registry.register(LASER_REGISTRY, id("basic"), new BasicLaser());
+    public static LaserType REGULAR_LASER = Registry.register(LASER_REGISTRY, id("regular"), new RegularLaser());
+    public static LaserType FIRE_LASER = Registry.register(LASER_REGISTRY, id("fire"), new FireLaser());
 
     public static Block LASER_EMITTER_BLOCK = Registry.register(Registry.BLOCK, id("laser_emitter"), new LaserEmitterBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item LASER_EMITTER_ITEM = Registry.register(Registry.ITEM, id("laser_emitter"), new BlockItem(LASER_EMITTER_BLOCK, new Item.Properties()));
