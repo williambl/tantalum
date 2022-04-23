@@ -22,6 +22,9 @@
       ],
       "init": [
         "com.williambl.tantalum.Tantalum"
+      ],
+      "pre_launch": [
+        "com.williambl.tantalum.TantalumPreLaunch"
       ]
     },
     "intermediate_mappings":"net.fabricmc:intermediary"

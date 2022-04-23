@@ -17,6 +17,11 @@ repositories {
         name 'ParchmentMC'
         url 'https://maven.parchmentmc.org'
     }
+
+    maven {
+        name 'JitPack'
+        url 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -29,6 +34,8 @@ dependencies {
     }
 
     modImplementation "org.quiltmc:quilt-loader:${project.loader_version}"
+
+    include implementation(annotationProcessor("com.github.LlamaLad7:MixinExtras:0.0.8"))
 
     modImplementation "org.quiltmc:qsl:${qsl_version}"
     modImplementation ("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${qfapi_version}") {

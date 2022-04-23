@@ -43,12 +43,6 @@ public class LaserEmitterBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        super.onRemove(state, level, pos, newState, isMoving);
-        level.scheduleTick(pos.relative(state.getValue(FACING)), Tantalum.LASER_BLOCK, 1);
-    }
-
-    @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
@@ -67,14 +61,6 @@ public class LaserEmitterBlock extends BaseEntityBlock {
 
     private static void tickEntity(Level level, BlockPos blockPos, BlockState blockState, LaserEmitterBlockEntity blockEntity) {
         blockEntity.tick(level, blockPos, blockState, blockEntity);
-        var posPastEndOfLaser = blockEntity.getPosPastEndOfLaser();
-        level.scheduleTick(blockPos.relative(blockState.getValue(FACING)), Tantalum.LASER_BLOCK, 1);
-        if (blockEntity.shouldPlaceLaserAt(posPastEndOfLaser)) {
-            if (blockEntity.getEnergy() >= 40) {
-                blockEntity.useEnergy(40);
-                level.setBlockAndUpdate(posPastEndOfLaser, Tantalum.LASER_BLOCK.defaultBlockState().setValue(FACING, blockState.getValue(FACING)));
-            }
-        }
     }
 
     public static int LASER_LENGTH = 32;

@@ -4,6 +4,7 @@
   "package": "com.williambl.tantalum.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "CollisionContextMixin"
   ],
   "client": [
   ],
