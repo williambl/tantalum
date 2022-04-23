@@ -13,8 +13,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Tantalum implements ModInitializer {
+    public static Logger LOGGER = LoggerFactory.getLogger(Tantalum.class);
+
     public static Registry<LaserType> LASER_REGISTRY = FabricRegistryBuilder.createSimple(LaserType.class, id("laser")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static LaserType REGULAR_LASER = Registry.register(LASER_REGISTRY, id("basic"), new BasicLaser());
 

@@ -17,7 +17,7 @@
       "minecraft"
     ],
     "entrypoints": {
-      "init_client": [
+      "client_init": [
         "com.williambl.tantalum.client.TantalumClient"
       ],
       "init": [

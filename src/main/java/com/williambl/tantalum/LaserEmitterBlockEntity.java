@@ -1,7 +1,17 @@
 package com.williambl.tantalum;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -9,11 +19,17 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.quiltmc.qsl.networking.api.PacketByteBufs;
+import org.quiltmc.qsl.networking.api.PlayerLookup;
+import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
+import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
 import reborncore.common.blockentity.MachineBaseBlockEntity;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.williambl.tantalum.Tantalum.id;
 
 public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     private final List<LaserData> lasers = new ArrayList<>();
@@ -66,6 +82,7 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
 
             this.lasers.add(lastLaser);
         }
+        this.sync();
     }
 
     private @Nullable LaserData calculateLaserData(BlockPos from, Direction dir) {
@@ -74,7 +91,8 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
             return null;
         }
 
-        var rayStart = Vec3.atCenterOf(from).add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.5));
+        var offset = Vec3.atLowerCornerOf(dir.getNormal());
+        var rayStart = Vec3.atCenterOf(from).add(offset.scale(0.5));
         //noinspection ConstantConditions
         var raycast = this.level.clip(new ClipContext(
                 rayStart,
@@ -84,8 +102,69 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
                 null
         ));
 
-        var rayEnd = Vec3.atCenterOf(raycast.getBlockPos()).add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.5));
+        var rayEnd = Vec3.atCenterOf(raycast.getBlockPos()).add(offset.scale(-0.5));
 
-        return new LaserData(new AABB(rayStart.x - 0.25, rayStart.y - 0.25, rayStart.z - 0.25, rayEnd.x + 0.25, rayEnd.y + 0.25, rayEnd.z + 0.25), dir, type, raycast.getBlockPos());
+        return new LaserData(
+                new AABB(
+                        rayStart.x - 0.25 * (offset.x != 0 ? 0 : 1),
+                        rayStart.y - 0.25 * (offset.y != 0 ? 0 : 1),
+                        rayStart.z - 0.25 * (offset.z != 0 ? 0 : 1),
+                        rayEnd.x + 0.25 * (offset.x != 0 ? 0 : 1),
+                        rayEnd.y + 0.25 * (offset.y != 0 ? 0 : 1),
+                        rayEnd.z + 0.25 * (offset.z != 0 ? 0 : 1)
+                ),
+                dir,
+                type,
+                raycast.getBlockPos()
+        );
     }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        var tag = super.getUpdateTag();
+        tag.put("lasers", LaserData.CODEC.listOf().encode(this.lasers, NbtOps.INSTANCE, new ListTag()).getOrThrow(true, Tantalum.LOGGER::error));
+        return tag;
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        System.out.println(tag.toString());
+        if (tag.getTagType("lasers") == Tag.TAG_LIST) {
+            this.lasers.clear();
+            this.lasers.addAll(LaserData.CODEC.listOf().decode(NbtOps.INSTANCE, tag.get("lasers")).getOrThrow(true, Tantalum.LOGGER::error).getFirst());
+        }
+    }
+
+    public void sync() {
+        var buf = PacketByteBufs.create();
+        buf.writeBlockPos(this.getBlockPos());
+        buf.writeNbt(this.getUpdateTag());
+        PlayerLookup.tracking(this).forEach(p ->
+            ServerPlayNetworking.send(p, SYNC_PACKET_ID, buf)
+        );
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static void initClientNetworking() {
+        ClientPlayNetworking.registerGlobalReceiver(SYNC_PACKET_ID, (client, handler, buf, responseSender) -> {
+            var pos = buf.readBlockPos();
+            var tag = buf.readNbt();
+            client.execute(() -> {
+                var be = client.level.getBlockEntity(pos);
+                if (!(be instanceof LaserEmitterBlockEntity laserEmitterBe)) {
+                    return;
+                }
+
+                laserEmitterBe.load(tag);
+            });
+        });
+    }
+
+    private static final ResourceLocation SYNC_PACKET_ID = id("sync/block_entity/laser_emitter");
 }
