@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -13,8 +12,11 @@ import org.jetbrains.annotations.Nullable;
 import reborncore.common.blockentity.MachineBaseBlockEntity;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
-    private AABB laserAABB = null;
+    private final List<LaserData> lasers = new ArrayList<>();
 
     public LaserEmitterBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(Tantalum.LASER_EMITTER_BLOCK_ENTITY, blockPos, blockState);
@@ -43,26 +45,36 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
     @Override
     public void tick(Level world, BlockPos pos, BlockState state, MachineBaseBlockEntity blockEntity2) {
         super.tick(world, pos, state, blockEntity2);
-        this.recalculateLaserAABB();
-
-        world.getEntities(null, this.getLaserAABB()).forEach(it -> it.setSecondsOnFire(8));
+        this.recalculateLasers();
+        this.lasers.forEach(laser -> laser.type().tick(laser.aabb(), this.level,  laser.direction()));
     }
 
-    public AABB getLaserAABB() {
-        if (this.laserAABB == null) {
-            this.laserAABB = this.calculateLaserAABB();
+    public List<LaserData> lasers() {
+        return new ArrayList<>(this.lasers);
+    }
+
+    private void recalculateLasers() {
+        this.lasers.clear();
+        LaserData lastLaser = null;
+        var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
+        for (int i = 0; i < 16; i++) {
+            var from = lastLaser == null ? this.getBlockPos() : lastLaser.end();
+            lastLaser = this.calculateLaserData(from, dir);
+            if (lastLaser == null) {
+                break;
+            }
+
+            this.lasers.add(lastLaser);
+        }
+    }
+
+    private @Nullable LaserData calculateLaserData(BlockPos from, Direction dir) {
+        var type = from == this.getBlockPos() ? Tantalum.REGULAR_LASER : LaserType.getTypeForBlock(this.level.getBlockState(from));
+        if (type == null) {
+            return null;
         }
 
-        return this.laserAABB;
-    }
-
-    private void recalculateLaserAABB() {
-        this.laserAABB = this.calculateLaserAABB();
-    }
-
-    private AABB calculateLaserAABB() {
-        var dir = this.getBlockState().getValue(BlockStateProperties.FACING);
-        var rayStart = Vec3.atCenterOf(this.getBlockPos()).add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.5));
+        var rayStart = Vec3.atCenterOf(from).add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.5));
         //noinspection ConstantConditions
         var raycast = this.level.clip(new ClipContext(
                 rayStart,
@@ -74,6 +86,6 @@ public class LaserEmitterBlockEntity extends PowerAcceptorBlockEntity {
 
         var rayEnd = Vec3.atCenterOf(raycast.getBlockPos()).add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.5));
 
-        return new AABB(rayStart.x - 0.25, rayStart.y - 0.25, rayStart.z - 0.25, rayEnd.x + 0.25, rayEnd.y + 0.25, rayEnd.z + 0.25);
+        return new LaserData(new AABB(rayStart.x - 0.25, rayStart.y - 0.25, rayStart.z - 0.25, rayEnd.x + 0.25, rayEnd.y + 0.25, rayEnd.z + 0.25), dir, type, raycast.getBlockPos());
     }
 }
