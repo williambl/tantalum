@@ -68,14 +68,30 @@ public final class PipeManager {
                     var v = entry.getKey().nodeV();
 
                     if (entry.getLongValue() > 0) {
+                        if (u.getFluidTank().isResourceBlank()) {
+                            innerTrans.abort();
+                            continue;
+                        }
                         var amount = v.getFluidTank().insert(u.getFluidTank().getResource(), entry.getLongValue(), innerTrans);
-                        u.getFluidTank().extract(u.getFluidTank().getResource(), amount, innerTrans);
+                        var amount2 = u.getFluidTank().extract(u.getFluidTank().getResource(), amount, innerTrans);
+                        if (amount2 == amount) {
+                            innerTrans.commit();
+                        } else {
+                            innerTrans.abort();
+                        }
                     } else if (entry.getLongValue() < 0) {
+                        if (v.getFluidTank().isResourceBlank()) {
+                            innerTrans.abort();
+                            continue;
+                        }
                         var amount = u.getFluidTank().insert(v.getFluidTank().getResource(), -entry.getLongValue(), innerTrans);
-                        v.getFluidTank().extract(v.getFluidTank().getResource(), amount, innerTrans);
+                        var amount2 = v.getFluidTank().extract(v.getFluidTank().getResource(), amount, innerTrans);
+                        if (amount2 == amount) {
+                            innerTrans.commit();
+                        } else {
+                            innerTrans.abort();
+                        }
                     }
-
-                    innerTrans.commit();
                 }
             }
 
