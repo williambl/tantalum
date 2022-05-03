@@ -6,6 +6,7 @@ import com.google.common.graph.MutableGraph;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -19,7 +20,7 @@ import java.util.WeakHashMap;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class PipeManager {
-    private static final boolean SYNC_TO_CLIENTS_FOR_DEBUGGING = true;
+    private static final boolean SYNC_TO_CLIENTS_FOR_DEBUGGING = false;
     private static final WeakHashMap<ServerLevel, PipeManager> PIPE_MANAGERS = new WeakHashMap<>();
 
     private final Object2LongMap<EndpointPair<FluidPipeBlockEntity>> flowSpeeds = new Object2LongOpenHashMap<>();
@@ -96,6 +97,9 @@ public final class PipeManager {
             }
 
             outerTrans.commit();
+        }
+        if (SYNC_TO_CLIENTS_FOR_DEBUGGING) {
+            this.pipes.values().forEach(FluidPipeBlockEntity::sync);
         }
         this.pipes.clear();
     }
