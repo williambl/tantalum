@@ -1,6 +1,6 @@
 package com.williambl.tantalum.client;
 
-import com.williambl.tantalum.LaserEmitterBlockEntity;
+import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.Tantalum;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import org.quiltmc.loader.api.ModContainer;

@@ -1,7 +1,10 @@
 package com.williambl.tantalum;
 
-import com.williambl.tantalum.lasers.FireLaser;
-import com.williambl.tantalum.lasers.RegularLaser;
+import com.williambl.tantalum.laser.LaserEmitterBlock;
+import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
+import com.williambl.tantalum.laser.LaserType;
+import com.williambl.tantalum.laser.lasers.FireLaser;
+import com.williambl.tantalum.laser.lasers.RegularLaser;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;

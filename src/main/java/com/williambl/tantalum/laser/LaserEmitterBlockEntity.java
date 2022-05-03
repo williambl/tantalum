@@ -1,5 +1,6 @@
-package com.williambl.tantalum;
+package com.williambl.tantalum.laser;
 
+import com.williambl.tantalum.Tantalum;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;

@@ -1,7 +1,9 @@
-package com.williambl.tantalum;
+package com.williambl.tantalum.laser;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.williambl.tantalum.Tantalum;
+import com.williambl.tantalum.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;

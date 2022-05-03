@@ -1,5 +1,6 @@
-package com.williambl.tantalum;
+package com.williambl.tantalum.laser;
 
+import com.williambl.tantalum.Tantalum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

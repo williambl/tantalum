@@ -1,12 +1,12 @@
-package com.williambl.tantalum;
+package com.williambl.tantalum.laser;
 
+import com.williambl.tantalum.Tantalum;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
 
 public interface LaserType {
     void tick(AABB aabb, Level level, Direction direction);

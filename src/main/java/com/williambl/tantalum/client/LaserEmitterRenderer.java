@@ -1,19 +1,12 @@
 package com.williambl.tantalum.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.williambl.tantalum.LaserEmitterBlockEntity;
-import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
+import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import reborncore.common.util.Color;
 
 public class LaserEmitterRenderer implements BlockEntityRenderer<LaserEmitterBlockEntity> {
     public LaserEmitterRenderer(BlockEntityRendererProvider.Context context) {
