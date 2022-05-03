@@ -15,16 +15,18 @@ import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class PipeManager {
-    private static final Map<ResourceKey<Level>, PipeManager> PIPE_MANAGERS = new HashMap<>();
+    private static final boolean SYNC_TO_CLIENTS_FOR_DEBUGGING = true;
+    private static final WeakHashMap<ServerLevel, PipeManager> PIPE_MANAGERS = new WeakHashMap<>();
 
     private final Object2LongMap<EndpointPair<FluidPipeBlockEntity>> flowSpeeds = new Object2LongOpenHashMap<>();
     private final Map<BlockPos, FluidPipeBlockEntity> pipes = new HashMap<>();
 
     public static void addPipe(ServerLevel level, BlockPos pos, FluidPipeBlockEntity be) {
-        var manager = PIPE_MANAGERS.computeIfAbsent(level.dimension(), (dim) -> new PipeManager());
+        var manager = PIPE_MANAGERS.computeIfAbsent(level, (dim) -> new PipeManager());
         manager.pipes.put(pos, be);
     }
 
@@ -84,7 +86,7 @@ public final class PipeManager {
 
     public static void tick(ServerLevel level) {
         level.getProfiler().push("pipes");
-        var manager = PIPE_MANAGERS.get(level.dimension());
+        var manager = PIPE_MANAGERS.get(level);
         if (manager != null) {
             manager.tick();
         }
