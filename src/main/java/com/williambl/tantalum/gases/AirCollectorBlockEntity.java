@@ -86,7 +86,7 @@ public class AirCollectorBlockEntity extends PowerAcceptorBlockEntity implements
         for (var dir : Direction.values()) {
             try (var transaction = Transaction.openOuter()) {
                 var other = world.getBlockEntity(pos.relative(dir));
-                if (other instanceof FluidPipeBlockEntity fluidPipeBlockEntity) {
+                if (!this.tank.isResourceBlank() && other instanceof FluidPipeBlockEntity fluidPipeBlockEntity) {
                     var amount = fluidPipeBlockEntity.getFluidTank().insert(this.tank.getResource(), this.tank.getAmount(), transaction);
                     this.tank.extract(this.tank.getResource(), amount, transaction);
                     transaction.commit();
