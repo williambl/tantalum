@@ -1,8 +1,6 @@
 package com.williambl.tantalum;
 
-import com.williambl.tantalum.gases.AirCollectorBlock;
-import com.williambl.tantalum.gases.AirCollectorBlockEntity;
-import com.williambl.tantalum.gases.HasTank;
+import com.williambl.tantalum.gases.*;
 import com.williambl.tantalum.laser.LaserEmitterBlock;
 import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.laser.LaserType;
@@ -22,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
+import org.quiltmc.qsl.lifecycle.api.event.ServerWorldTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +39,10 @@ public class Tantalum implements ModInitializer {
     public static Item AIR_COLLECTOR_ITEM = Registry.register(Registry.ITEM, id("air_collector"), new BlockItem(AIR_COLLECTOR_BLOCK, new Item.Properties()));
     public static BlockEntityType<AirCollectorBlockEntity> AIR_COLLECTOR_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("air_collector"), FabricBlockEntityTypeBuilder.create(AirCollectorBlockEntity::new, AIR_COLLECTOR_BLOCK).build());
 
+    public static Block FLUID_PIPE_BLOCK = Registry.register(Registry.BLOCK, id("fluid_pipe"), new FluidPipeBlock(BlockBehaviour.Properties.of(Material.METAL)));
+    public static Item FLUID_PIPE_ITEM = Registry.register(Registry.ITEM, id("fluid_pipe"), new BlockItem(FLUID_PIPE_BLOCK, new Item.Properties()));
+    public static BlockEntityType<FluidPipeBlockEntity> FLUID_PIPE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("fluid_pipe"), FabricBlockEntityTypeBuilder.create(FluidPipeBlockEntity::new, FLUID_PIPE_BLOCK).build());
+
     public static ResourceLocation id(String path) {
         return new ResourceLocation("tantalum", path);
     }
@@ -52,6 +55,8 @@ public class Tantalum implements ModInitializer {
             } else {
                 return null;
             }
-        }, AIR_COLLECTOR_BLOCK_ENTITY);
+        }, AIR_COLLECTOR_BLOCK_ENTITY, FLUID_PIPE_BLOCK_ENTITY);
+
+        ServerWorldTickEvents.END.register((server, world) -> PipeManager.tick(world));
     }
 }
