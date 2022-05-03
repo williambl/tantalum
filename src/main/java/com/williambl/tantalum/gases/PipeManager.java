@@ -50,7 +50,7 @@ public final class PipeManager {
                 }
             }
 
-
+            //TODO: friction, damping for infinite waves
             for (var edge : pipeGraph.edges()) {
                 var u = edge.nodeU();
                 var v = edge.nodeV();
@@ -98,9 +98,11 @@ public final class PipeManager {
 
             outerTrans.commit();
         }
+
         if (SYNC_TO_CLIENTS_FOR_DEBUGGING) {
             this.pipes.values().forEach(FluidPipeBlockEntity::sync);
         }
+
         this.pipes.clear();
     }
 
