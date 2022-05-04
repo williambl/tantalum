@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": {
+    "tantalum:air": {
+      "tantalum:oxygen": 200,
+      "tantalum:nitrogen": 780,
+      "tantalum:argon": 10,
+      "tantalum:carbon_dioxide": 4,
+      "tantalum:helium": 1,
+      "tantalum:xenon": 1
+    }
+  }
+}
