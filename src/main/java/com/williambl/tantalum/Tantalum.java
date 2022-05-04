@@ -42,6 +42,10 @@ public class Tantalum implements ModInitializer {
     public static Item AIR_COLLECTOR_ITEM = Registry.register(Registry.ITEM, id("air_collector"), new BlockItem(AIR_COLLECTOR_BLOCK, new Item.Properties()));
     public static BlockEntityType<AirCollectorBlockEntity> AIR_COLLECTOR_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("air_collector"), FabricBlockEntityTypeBuilder.create(AirCollectorBlockEntity::new, AIR_COLLECTOR_BLOCK).build());
 
+    public static Block SPLITTER_BLOCK = Registry.register(Registry.BLOCK, id("splitter"), new SplitterBlock(BlockBehaviour.Properties.of(Material.METAL)));
+    public static Item SPLITTER_ITEM = Registry.register(Registry.ITEM, id("splitter"), new BlockItem(SPLITTER_BLOCK, new Item.Properties()));
+    public static BlockEntityType<SplitterBlockEntity> SPLITTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("splitter"), FabricBlockEntityTypeBuilder.create(SplitterBlockEntity::new, SPLITTER_BLOCK).build());
+
     public static Block FLUID_PIPE_BLOCK = Registry.register(Registry.BLOCK, id("fluid_pipe"), new FluidPipeBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item FLUID_PIPE_ITEM = Registry.register(Registry.ITEM, id("fluid_pipe"), new BlockItem(FLUID_PIPE_BLOCK, new Item.Properties()));
     public static BlockEntityType<FluidPipeBlockEntity> FLUID_PIPE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("fluid_pipe"), FabricBlockEntityTypeBuilder.create(FluidPipeBlockEntity::new, FLUID_PIPE_BLOCK).build());
@@ -49,6 +53,14 @@ public class Tantalum implements ModInitializer {
     public static final RegistryEntryAttachment<Fluid, FluidComposition> FLUID_COMPOSITION = RegistryEntryAttachment.builder(Registry.FLUID, id("composition"), FluidComposition.class, FluidComposition.CODEC)
             .defaultValueProvider(fluid -> DefaultValueProvider.Result.of(new FluidComposition(fluid)))
             .build();
+
+    public static final Fluid AIR_FLUID = Registry.register(Registry.FLUID, id("air"), new GasFluid());
+    public static final Fluid OXYGEN_FLUID = Registry.register(Registry.FLUID, id("oxygen"), new GasFluid());
+    public static final Fluid NITROGEN_FLUID = Registry.register(Registry.FLUID, id("nitrogen"), new GasFluid());
+    public static final Fluid ARGON_FLUID = Registry.register(Registry.FLUID, id("argon"), new GasFluid());
+    public static final Fluid CARBON_DIOXIDE_FLUID = Registry.register(Registry.FLUID, id("carbon_dioxide"), new GasFluid());
+    public static final Fluid HELIUM_FLUID = Registry.register(Registry.FLUID, id("helium"), new GasFluid());
+    public static final Fluid XENON_FLUID = Registry.register(Registry.FLUID, id("xenon"), new GasFluid());
 
     public static ResourceLocation id(String path) {
         return new ResourceLocation("tantalum", path);

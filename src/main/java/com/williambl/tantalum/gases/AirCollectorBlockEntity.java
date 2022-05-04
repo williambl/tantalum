@@ -79,7 +79,7 @@ public class AirCollectorBlockEntity extends PowerAcceptorBlockEntity implements
     public void tick(Level world, BlockPos pos, BlockState state, MachineBaseBlockEntity blockEntity2) {
         super.tick(world, pos, state, blockEntity2);
         try(var transaction = Transaction.openOuter()) {
-            this.tank.insert(FluidVariant.of(ModFluids.NITROGEN.getFluid()), DROPLET, transaction);
+            this.tank.insert(FluidVariant.of(Tantalum.AIR_FLUID), DROPLET, transaction);
             transaction.commit();
         }
 

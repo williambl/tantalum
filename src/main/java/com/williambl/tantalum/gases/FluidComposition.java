@@ -27,7 +27,18 @@ public class FluidComposition {
     }
 
     public Map<Fluid, Integer> getValues() {
-        return new HashMap<>(compositionMap);
+        return new HashMap<>(this.compositionMap);
+    }
+
+    public Map<Fluid, Long> split(long amount) {
+        double scaleAmount = (double) amount / (double) this.compositionMap.values().intStream().sum();
+        Map<Fluid, Long> res = new HashMap<>();
+
+        for (var entry : this.compositionMap.object2IntEntrySet()) {
+            res.put(entry.getKey(), (long) ((long) entry.getIntValue() * scaleAmount));
+        }
+
+        return res;
     }
 
     public static Codec<FluidComposition> CODEC = Codec.unboundedMap(Registry.FLUID.byNameCodec(), Codec.INT)
