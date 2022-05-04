@@ -19,6 +19,11 @@ repositories {
     }
 
     maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
+
+    maven {
         name 'JitPack'
         url 'https://jitpack.io'
     }
@@ -41,6 +46,8 @@ dependencies {
     modImplementation ("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${qfapi_version}") {
         exclude(module: "fabric-loader")
     }
+
+    modImplementation include("io.github.cottonmc:LibGui:${libgui_version}")
 
     modImplementation ("RebornCore:RebornCore-1.18:${rc_version}") {
         exclude(group: "net.fabricmc.fabric-api")
