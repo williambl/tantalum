@@ -17,11 +17,11 @@ import java.util.function.Consumer;
 
 public final class Util {
     public static final Codec<AABB> AABB_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("minX").forGetter((AABB a) -> a.minX),
-            Codec.DOUBLE.fieldOf("minY").forGetter((AABB a) -> a.minY),
-            Codec.DOUBLE.fieldOf("minZ").forGetter((AABB a) -> a.minZ),
-            Codec.DOUBLE.fieldOf("maxX").forGetter((AABB a) -> a.maxX),
-            Codec.DOUBLE.fieldOf("maxY").forGetter((AABB a) -> a.maxY),
-            Codec.DOUBLE.fieldOf("maxZ").forGetter((AABB a) -> a.maxZ)
+            Codec.DOUBLE.fieldOf("minX").forGetter(a -> a.minX),
+            Codec.DOUBLE.fieldOf("minY").forGetter(a -> a.minY),
+            Codec.DOUBLE.fieldOf("minZ").forGetter(a -> a.minZ),
+            Codec.DOUBLE.fieldOf("maxX").forGetter(a -> a.maxX),
+            Codec.DOUBLE.fieldOf("maxY").forGetter(a -> a.maxY),
+            Codec.DOUBLE.fieldOf("maxZ").forGetter(a -> a.maxZ)
     ).apply(instance, AABB::new));
 }

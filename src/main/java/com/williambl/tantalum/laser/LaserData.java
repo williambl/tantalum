@@ -13,7 +13,7 @@ public record LaserData(AABB aabb, Direction direction, LaserType type, BlockPos
     public static Codec<LaserData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Util.AABB_CODEC.fieldOf("aabb").forGetter(LaserData::aabb),
             Direction.CODEC.fieldOf("direction").forGetter(LaserData::direction),
-            ResourceLocation.CODEC.xmap(Tantalum.LASER_REGISTRY::get, Tantalum.LASER_REGISTRY::getKey).fieldOf("type").forGetter(LaserData::type),
+            Tantalum.LASER_REGISTRY.byNameCodec().fieldOf("type").forGetter(LaserData::type),
             BlockPos.CODEC.fieldOf("end").forGetter(LaserData::end)
     ).apply(instance, LaserData::new));
 }
