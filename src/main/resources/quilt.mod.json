@@ -39,6 +39,6 @@
     "environment": "*"
   },
   "cardinal_components": [
-    "tantalum:pipe_graphs"
+    "tantalum:pipe_network_manager"
   ]
 }

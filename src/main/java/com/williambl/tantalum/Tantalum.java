@@ -1,11 +1,15 @@
 package com.williambl.tantalum;
 
 import com.williambl.tantalum.gases.*;
+import com.williambl.tantalum.gases.pipe.network.LevelPipeNetworkManager;
+import com.williambl.tantalum.gases.pipe.network.PipeNetworkManager;
 import com.williambl.tantalum.laser.LaserEmitterBlock;
 import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
+import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
+import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -27,7 +31,7 @@ import org.quiltmc.qsl.registry.attachment.api.RegistryEntryAttachment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Tantalum implements ModInitializer {
+public class Tantalum implements ModInitializer, WorldComponentInitializer {
     public static Logger LOGGER = LoggerFactory.getLogger(Tantalum.class);
 
     public static Registry<LaserType> LASER_REGISTRY = FabricRegistryBuilder.createSimple(LaserType.class, id("laser")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
@@ -77,5 +81,10 @@ public class Tantalum implements ModInitializer {
         }, AIR_COLLECTOR_BLOCK_ENTITY, FLUID_PIPE_BLOCK_ENTITY);
 
         ServerWorldTickEvents.END.register((server, world) -> PipeManager.tick(world));
+    }
+
+    @Override
+    public void registerWorldComponentFactories(WorldComponentFactoryRegistry registry) {
+        registry.register(PipeNetworkManager.KEY, LevelPipeNetworkManager::new);
     }
 }

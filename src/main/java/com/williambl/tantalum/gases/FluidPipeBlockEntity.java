@@ -1,6 +1,8 @@
 package com.williambl.tantalum.gases;
 
 import com.williambl.tantalum.Tantalum;
+import com.williambl.tantalum.gases.pipe.network.PipeNetworkManager;
+import com.williambl.tantalum.gases.pipe.network.PipeNetworks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -48,7 +50,10 @@ public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
 
     @Nullable
     public FluidTank getFluidTank() {
-        return null; //TODO
+        if (this.level == null) {
+            return null;
+        }
+        return PipeNetworks.getTank(PipeNetworkManager.KEY.get(this.level).getNetwork(this.pipeNetworkId), this);
     }
 
     public int getPipeNetworkId() {
