@@ -1,13 +1,17 @@
 package com.williambl.tantalum.gases.pipe.network;
 
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
 import com.google.common.graph.MutableNetwork;
 import com.williambl.tantalum.Tantalum;
 import com.williambl.tantalum.gases.FluidPipeBlockEntity;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
 import java.util.Arrays;
@@ -64,9 +68,61 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
         }
     }
 
+    private void tickNetwork(MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> network) {
+        try (var outerTrans = Transaction.openOuter()) {
+            //TODO: friction, damping for infinite waves
+            for (var edge : network.edges()) {
+                var nodes = network.incidentNodes(edge);
+                var u = nodes.nodeU();
+                var v = nodes.nodeV();
+                var d = u.tank().getAmount() - v.tank().getAmount();
+                edge.setFlowSpeed(Mth.clamp(edge.flowSpeed() + d, -(v.tank().getAmount() / 6), u.tank().getAmount() / 6)); // 6 = Direction.values().length
+            }
+
+            for (var edge : network.edges()) {
+                try (var innerTrans = Transaction.openNested(outerTrans)) {
+                    var nodes = network.incidentNodes(edge);
+
+                    PipeNetworks.Node u;
+                    PipeNetworks.Node v;
+                    long flowSpeed;
+                    if (edge.flowSpeed() > 0) {
+                        u = nodes.nodeU();
+                        v = nodes.nodeV();
+                        flowSpeed = edge.flowSpeed();
+                    } else {
+                        u = nodes.nodeV();
+                        v = nodes.nodeU();
+                        flowSpeed = -edge.flowSpeed();
+                    }
+
+                    if (u.tank().isResourceBlank()) {
+                        innerTrans.abort();
+                        continue;
+                    }
+
+                    var amountExtracted = edge.tank().extract(edge.tank().getResource(), flowSpeed, innerTrans);
+                    amountExtracted += u.tank().extract(u.tank().getResource(), Math.max(0, flowSpeed - amountExtracted), innerTrans);
+                    var amountInserted = v.tank().insert(u.tank().getResource(), amountExtracted, innerTrans);
+                    var amountInsertedIntoPipe = edge.tank().insert(edge.tank().getResource(), amountExtracted - amountInserted, innerTrans);
+                    if (amountInsertedIntoPipe + amountInserted == amountExtracted) {
+                        innerTrans.commit();
+                    } else {
+                        Tantalum.LOGGER.warn("Violation of conservation of mass @ {} -> [{}, {}] -> {} (expected {} got {})", u.pos(), edge.posA(), edge.posB(), v.pos(), amountExtracted, amountInsertedIntoPipe + amountInserted);
+                        innerTrans.abort();
+                    }
+                }
+            }
+
+            outerTrans.commit();
+        }
+    }
+
     @Override
     public void serverTick() {
-
+        this.level.getProfiler().push("pipes");
+        this.networks.values().forEach(this::tickNetwork);
+        this.level.getProfiler().pop();
     }
 
     @Override

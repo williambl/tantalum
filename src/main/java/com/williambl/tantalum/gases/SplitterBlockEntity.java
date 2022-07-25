@@ -1,6 +1,7 @@
 package com.williambl.tantalum.gases;
 
 import com.williambl.tantalum.Tantalum;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -96,10 +97,14 @@ public class SplitterBlockEntity extends PowerAcceptorBlockEntity implements Has
 
         for (var dir : Direction.values()) {
             try (var transaction = Transaction.openOuter()) {
-                var other = world.getBlockEntity(pos.relative(dir));
-                if (other instanceof FluidPipeBlockEntity fluidPipeBlockEntity && !fluidPipeBlockEntity.getFluidTank().isResourceBlank()) {
-                    var amount = this.getFluidTank().insert(fluidPipeBlockEntity.getFluidTank().getResource(), BOTTLE, transaction);
-                    fluidPipeBlockEntity.getFluidTank().extract(fluidPipeBlockEntity.getFluidTank().getResource(), amount, transaction);
+                var other = FluidStorage.SIDED.find(this.level, pos.relative(dir), dir.getOpposite());
+                if (other != null) {
+                    for (var storage : other.iterable(transaction)) {
+                        if (!storage.isResourceBlank()) {
+                            var amount = this.getFluidTank().insert(storage.getResource(), BOTTLE, transaction);
+                            other.extract(storage.getResource(), amount, transaction);
+                        }
+                    }
                     transaction.commit();
                 } else {
                     transaction.abort();

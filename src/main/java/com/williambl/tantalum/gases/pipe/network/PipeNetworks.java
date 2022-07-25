@@ -5,6 +5,7 @@ import com.google.common.graph.NetworkBuilder;
 import com.williambl.tantalum.Util;
 import com.williambl.tantalum.gases.FluidPipeBlockEntity;
 import com.williambl.tantalum.gases.FluidTank;
+import com.williambl.tantalum.gases.HasTank;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
