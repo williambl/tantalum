@@ -1,11 +1,8 @@
 package com.williambl.tantalum.gases;
 
 import com.williambl.tantalum.Tantalum;
-import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,13 +17,9 @@ import org.quiltmc.qsl.networking.api.PacketByteBufs;
 import org.quiltmc.qsl.networking.api.PlayerLookup;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import reborncore.common.blockentity.MachineBaseBlockEntity;
-import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
-import techreborn.init.ModFluids;
 
 import static com.williambl.tantalum.Tantalum.id;
 import static net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants.BUCKET;
-import static net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants.DROPLET;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
