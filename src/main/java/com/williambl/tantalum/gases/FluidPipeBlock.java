@@ -1,10 +1,14 @@
 package com.williambl.tantalum.gases;
 
 import com.williambl.tantalum.Tantalum;
+import com.williambl.tantalum.gases.pipe.network.PipeNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -31,6 +35,18 @@ public class FluidPipeBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return Tantalum.FLUID_PIPE_BLOCK_ENTITY.create(pos, state);
+    }
+
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        super.onPlace(state, level, pos, oldState, isMoving);
+        level.getBlockEntity(pos, Tantalum.FLUID_PIPE_BLOCK_ENTITY).ifPresent(FluidPipeBlockEntity::joinNetwork);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        super.onRemove(state, level, pos, newState, isMoving);
+        PipeNetworkManager.KEY.get(level).leaveNetwork(pos);
     }
 
     @Nullable

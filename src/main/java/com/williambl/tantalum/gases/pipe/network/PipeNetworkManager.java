@@ -8,6 +8,7 @@ import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.core.BlockPos;
 
 import static com.williambl.tantalum.Tantalum.id;
 
@@ -15,6 +16,8 @@ import static com.williambl.tantalum.Tantalum.id;
 public interface PipeNetworkManager extends Component, AutoSyncedComponent, ServerTickingComponent {
     MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> getNetwork(int id);
     Int2ObjectMap<MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge>> getNetworks();
+    int joinNetwork(FluidPipeBlockEntity fluidPipeBlockEntity);
+    void leaveNetwork(BlockPos pipePos);
 
     ComponentKey<PipeNetworkManager> KEY = ComponentRegistry.getOrCreate(id("pipe_network_manager"), PipeNetworkManager.class);
 }

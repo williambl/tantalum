@@ -16,6 +16,6 @@ public class TantalumClient implements ClientModInitializer {
         LaserEmitterBlockEntity.initClientNetworking();
         FluidPipeBlockEntity.initClientNetworking();
         var pipeDebugRenderer = new PipeDebugRenderer();
-        WorldRenderEvents.LAST.register(ctx -> pipeDebugRenderer.render(ctx));
+        WorldRenderEvents.LAST.register(pipeDebugRenderer::render);
     }
 }

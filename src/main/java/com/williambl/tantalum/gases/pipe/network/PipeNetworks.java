@@ -59,21 +59,21 @@ public final class PipeNetworks {
         return network;
     }
 
-    public static void addPipe(MutableNetwork<Node, Edge> network, FluidPipeBlockEntity pipe, Iterable<FluidPipeBlockEntity> neighbours, Consumer<BlockPos> markDirty) {
-        var node = new Node(pipe);
+    public static void addPipe(MutableNetwork<Node, Edge> network, BlockPos pipePos, Iterable<FluidPipeBlockEntity> neighbours, Consumer<BlockPos> markDirty) {
+        var node = new Node(pipePos);
         network.addNode(node);
         neighbours.forEach(neighbour -> {
-            var neighbourNode = convertEdgePartToNode(network, neighbour, markDirty);
-            var newEdge = new Edge(neighbour.getBlockPos(), pipe.getBlockPos());
+            var neighbourNode = convertEdgePartToNode(network, neighbour.getBlockPos(), markDirty);
+            var newEdge = new Edge(neighbour.getBlockPos(), pipePos);
             network.addEdge(neighbourNode, node, newEdge);
         });
     }
 
-    public static void removePipe(MutableNetwork<Node, Edge> network, FluidPipeBlockEntity pipe, Iterable<FluidPipeBlockEntity> neighbours, Consumer<BlockPos> markDirty) {
-        var node = convertEdgePartToNode(network, pipe, markDirty);
+    public static void removePipe(MutableNetwork<Node, Edge> network, BlockPos pipePos, Iterable<FluidPipeBlockEntity> neighbours, Consumer<BlockPos> markDirty) {
+        var node = convertEdgePartToNode(network, pipePos, markDirty);
         neighbours.forEach(neighbour -> {
-            var neighbourNode = convertEdgePartToNode(network, neighbour, markDirty);
-            var newEdge = new Edge(neighbour.getBlockPos(), pipe.getBlockPos());
+            var neighbourNode = convertEdgePartToNode(network, neighbour.getBlockPos(), markDirty);
+            var newEdge = new Edge(neighbour.getBlockPos(), pipePos);
             network.addEdge(neighbourNode, node, newEdge);
         });
 
@@ -84,19 +84,19 @@ public final class PipeNetworks {
         return nodeIncluding(network, pipe.getBlockPos()).map(Node::tank).orElseGet(() -> edgeIncluding(network, pipe.getBlockPos()).map(Edge::tank).orElseThrow());
     }
 
-    public static Node convertEdgePartToNode(MutableNetwork<Node, Edge> network, FluidPipeBlockEntity pipe, Consumer<BlockPos> markDirty) {
-        var edgeOptional = edgeIncluding(network, pipe.getBlockPos());
+    public static Node convertEdgePartToNode(MutableNetwork<Node, Edge> network, BlockPos pipePos, Consumer<BlockPos> markDirty) {
+        var edgeOptional = edgeIncluding(network, pipePos);
         if (edgeOptional.isEmpty()) {
-            return nodeIncluding(network, pipe.getBlockPos()).orElseThrow();
+            return nodeIncluding(network, pipePos).orElseThrow();
         }
 
         var edge = edgeOptional.get();
         var edgeEndpoints = network.incidentNodes(edge);
-        var newNode = new Node(pipe);
+        var newNode = new Node(pipePos);
         network.addNode(newNode);
-        var edgeA = new Edge(edgeEndpoints.nodeU().pos(), pipe.getBlockPos());
+        var edgeA = new Edge(edgeEndpoints.nodeU().pos(), pipePos);
         network.addEdge(edgeEndpoints.nodeU(), newNode, edgeA);
-        var edgeB = new Edge(edgeEndpoints.nodeV().pos(), pipe.getBlockPos());
+        var edgeB = new Edge(edgeEndpoints.nodeV().pos(), pipePos);
         network.addEdge(edgeEndpoints.nodeV(), newNode, edgeB);
         try (var trans = Transaction.openOuter()) {
             var resource = edge.tank().getResource();
@@ -129,15 +129,51 @@ public final class PipeNetworks {
                 .findAny();
     }
 
-    public record Node(FluidTank tank, BlockPos pos) {
+    public static final class Node {
         public static final Codec<Node> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 FluidTank.CODEC.fieldOf("tank").forGetter(Node::tank),
                 BlockPos.CODEC.fieldOf("pos").forGetter(Node::pos)
         ).apply(instance, Node::new));
+        private final FluidTank tank;
+        private final BlockPos pos;
 
-        public Node(FluidPipeBlockEntity pipe) {
-            this(new FluidTank(10 * FluidConstants.BUCKET), pipe.getBlockPos());
+        public Node(FluidTank tank, BlockPos pos) {
+            this.tank = tank;
+            this.pos = pos;
         }
+
+        public Node(BlockPos pipePos) {
+            this(new FluidTank(10 * FluidConstants.BUCKET), pipePos);
+        }
+
+        public FluidTank tank() {
+            return this.tank;
+        }
+
+        public BlockPos pos() {
+            return this.pos;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (Node) obj;
+            return Objects.equals(this.pos, that.pos);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.pos);
+        }
+
+        @Override
+        public String toString() {
+            return "Node[" +
+                    "tank=" + this.tank + ", " +
+                    "pos=" + this.pos + ']';
+        }
+
     }
 
     public static final class Edge {
@@ -202,12 +238,17 @@ public final class PipeNetworks {
         }
 
         public boolean contains(BlockPos pos) {
-            var dir = this.axis();
-            var dir2 = Util.getDirectionBetween(this.minPosExclusive, pos).getAxis();
+            var dir = Util.getDirectionBetween(this.minPosExclusive, pos);
 
-            var posOnAxis = pos.get(dir);
+            if (dir == null) {
+                return false;
+            }
 
-            return dir == dir2 && posOnAxis > this.minPosExclusive.get(dir) && posOnAxis < this.maxPosExclusive.get(dir);
+            var otherAxis = dir.getAxis();
+
+            var posOnAxis = pos.get(this.axis);
+
+            return this.axis == otherAxis && posOnAxis > this.minPosExclusive.get(this.axis) && posOnAxis < this.maxPosExclusive.get(otherAxis);
         }
 
         public long flowSpeed() {
@@ -223,15 +264,13 @@ public final class PipeNetworks {
             if (obj == this) return true;
             if (obj == null || obj.getClass() != this.getClass()) return false;
             var that = (Edge) obj;
-            return Objects.equals(this.tank, that.tank) &&
-                    Objects.equals(this.minPosExclusive, that.minPosExclusive) &&
-                    Objects.equals(this.maxPosExclusive, that.maxPosExclusive) &&
-                    this.flowSpeed == that.flowSpeed;
+            return Objects.equals(this.minPosExclusive, that.minPosExclusive) &&
+                    Objects.equals(this.maxPosExclusive, that.maxPosExclusive);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(this.tank, this.minPosExclusive, this.maxPosExclusive, this.flowSpeed);
+            return Objects.hash(this.minPosExclusive, this.maxPosExclusive);
         }
 
         @Override

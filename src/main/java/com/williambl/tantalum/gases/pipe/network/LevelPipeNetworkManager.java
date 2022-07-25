@@ -1,7 +1,5 @@
 package com.williambl.tantalum.gases.pipe.network;
 
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
 import com.google.common.graph.MutableNetwork;
 import com.williambl.tantalum.Tantalum;
 import com.williambl.tantalum.gases.FluidPipeBlockEntity;
@@ -12,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -20,6 +17,7 @@ import net.minecraft.world.level.Level;
 import java.util.Arrays;
 import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public class LevelPipeNetworkManager implements PipeNetworkManager {
     private final Level level;
     private final Int2ObjectMap<MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge>> networks = new Int2ObjectOpenHashMap<>();
@@ -39,8 +37,8 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
     }
 
     public int addNetwork(MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> network) {
-        int i = this.networks.size()-1;
-        while (!this.networks.containsKey(i)) {
+        int i = this.networks.size();
+        while (this.networks.containsKey(i)) {
             i++;
         }
 
@@ -48,6 +46,7 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
         return i;
     }
 
+    @Override
     public int joinNetwork(FluidPipeBlockEntity pipe) {
         var neighbours = Arrays.stream(Direction.values())
                 .map(dir -> pipe.getBlockPos().relative(dir))
@@ -58,22 +57,44 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
 
         var networks = neighbours.stream()
                 .map(FluidPipeBlockEntity::getPipeNetworkId)
+                .distinct()
                 .toList();
 
-        if (networks.size() == 0) {
-            var network = PipeNetworks.createPipeNetwork();
-            PipeNetworks.addPipe(network, pipe, neighbours, this::updatePipeBlock);
+        try {
+            if (networks.size() == 0) {
+                var network = PipeNetworks.createPipeNetwork();
+                PipeNetworks.addPipe(network, pipe.getBlockPos(), neighbours, this::updatePipeBlock);
 
-            return this.addNetwork(network);
-        } else if (networks.size() == 1) {
-            int networkId = networks.get(0);
-            var network = this.getNetwork(networkId);
-            PipeNetworks.addPipe(network, pipe, neighbours, this::updatePipeBlock);
-            return networkId;
-        } else {
-            //TODO merge networks
-            return 0;
+                return this.addNetwork(network);
+            } else if (networks.size() == 1) {
+                int networkId = networks.get(0);
+                var network = this.getNetwork(networkId);
+                PipeNetworks.addPipe(network, pipe.getBlockPos(), neighbours, this::updatePipeBlock);
+                return networkId;
+            } else {
+                //TODO merge networks
+                return 0;
+            }
+        } finally {
+            KEY.sync(this.level);
         }
+    }
+
+    @Override
+    public void leaveNetwork(BlockPos pipePos) {
+        var neighbours = Arrays.stream(Direction.values())
+                .map(pipePos::relative)
+                .map(pos -> this.level.getBlockEntity(pos, Tantalum.FLUID_PIPE_BLOCK_ENTITY))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        for (var network : this.networks.values()) {
+            if (PipeNetworks.nodeIncluding(network, pipePos).isPresent() || PipeNetworks.edgeIncluding(network, pipePos).isPresent()) {
+                PipeNetworks.removePipe(network, pipePos, neighbours, this::updatePipeBlock);
+            }
+        }
+        KEY.sync(this.level);
     }
 
     private void tickNetwork(MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> network) {
@@ -109,10 +130,10 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
                         continue;
                     }
 
-                    var amountExtracted = edge.tank().extract(edge.tank().getResource(), flowSpeed, innerTrans);
+                    var amountExtracted = edge.tank().extract(u.tank().getResource(), flowSpeed, innerTrans);
                     amountExtracted += u.tank().extract(u.tank().getResource(), Math.max(0, flowSpeed - amountExtracted), innerTrans);
                     var amountInserted = v.tank().insert(u.tank().getResource(), amountExtracted, innerTrans);
-                    var amountInsertedIntoPipe = edge.tank().insert(edge.tank().getResource(), amountExtracted - amountInserted, innerTrans);
+                    var amountInsertedIntoPipe = edge.tank().insert(u.tank().getResource(), amountExtracted - amountInserted, innerTrans);
                     if (amountInsertedIntoPipe + amountInserted == amountExtracted) {
                         innerTrans.commit();
                     } else {
@@ -131,12 +152,13 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
         this.level.getProfiler().push("pipes");
         this.networks.values().forEach(this::tickNetwork);
         this.level.getProfiler().pop();
+        KEY.sync(this.level);
     }
 
     @Override
     public void readFromNbt(CompoundTag tag) {
         tag.getCompound("networks").getAllKeys().forEach(key -> {
-            this.networks.put(Integer.parseInt(key), PipeNetworks.CODEC.decode(NbtOps.INSTANCE, tag.get(key)).getOrThrow(false, Tantalum.LOGGER::error).getFirst());
+            this.networks.put(Integer.parseInt(key), PipeNetworks.CODEC.decode(NbtOps.INSTANCE, tag.getCompound("networks").get(key)).getOrThrow(true, Tantalum.LOGGER::error).getFirst());
         });
     }
 

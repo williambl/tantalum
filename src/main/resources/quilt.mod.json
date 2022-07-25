@@ -38,7 +38,7 @@
   "minecraft": {
     "environment": "*"
   },
-  "cardinal_components": [
+  "cardinal-components": [
     "tantalum:pipe_network_manager"
   ]
 }

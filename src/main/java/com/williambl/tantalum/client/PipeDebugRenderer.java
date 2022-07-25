@@ -46,37 +46,38 @@ public class PipeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         network.nodes().forEach(node -> {
             final double filledFraction = (double) node.tank().getAmount() / (double) node.tank().getCapacity();
             var colour = getColourAsFloats(getColour(filledFraction));
-            LevelRenderer.renderVoxelShape(
-                    poseStack,
-                    bufferSource.getBuffer(RenderType.lines()),
-                    Shapes.box(-0.02, -0.01, -0.02, 1.02, filledFraction, 1.02),
-                    node.pos().getX(),
-                    node.pos().getY(),
-                    node.pos().getZ(),
+            DebugRenderer.renderFilledBox(
+                    new AABB(node.pos()).setMaxY(filledFraction+node.pos().getY()).move(-camX, -camY, -camZ),
                     colour[0],
                     colour[1],
                     colour[2],
                     0.5f
             );
+            DebugRenderer.renderFloatingText(""+node.tank().getAmount(), node.pos().getX()+0.5, node.pos().getY()+1.2, node.pos().getZ()+0.5, 0xffffff);
         });
 
         network.edges().forEach(edge -> {
             final double filledFraction = (double) edge.tank().getAmount() / (double) edge.tank().getCapacity();
             var colour = getColourAsFloats(getColour(filledFraction));
-            renderLine(poseStack, Vec3.atCenterOf(edge.posA()), Vec3.atCenterOf(edge.posB()), colour[0], colour[1], colour[2]);
+            renderLine(Vec3.atCenterOf(edge.posA()).subtract(camX, camY, camZ), Vec3.atCenterOf(edge.posB()).subtract(camX, camY, camZ), colour[0], colour[1], colour[2]);
         });
     }
 
-    public static void renderLine(PoseStack stack, Vec3 pos1, Vec3 pos2, float r, float g, float b) {
+    public static void renderLine(Vec3 pos1, Vec3 pos2, float r, float g, float b) {
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tesselator.getBuilder();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.lineWidth(6f);
+        RenderSystem.disableDepthTest();
+        RenderSystem.enableBlend();
         bufferBuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
-        bufferBuilder.vertex(stack.last().pose(), (float) pos1.x + 0.5f, (float) pos1.y + 0.5f, (float) pos1.z + 0.5f).color(r, g, b, 1f).endVertex();
-        bufferBuilder.vertex(stack.last().pose(), (float) pos2.x + 0.5f, (float) pos2.y + 0.5f, (float) pos2.z + 0.5f).color(r, g, b, 1f).endVertex();
+        bufferBuilder.vertex((float) pos1.x + 0.5f, (float) pos1.y + 1.25f, (float) pos1.z + 0.5f).color(r, g, b, 1f).endVertex();
+        bufferBuilder.vertex((float) pos2.x + 0.5f, (float) pos2.y + 1.25f, (float) pos2.z + 0.5f).color(r, g, b, 1f).endVertex();
 
         tesselator.end();
+        RenderSystem.disableBlend();
+        RenderSystem.enableDepthTest();
     }
 
     public void render(WorldRenderContext ctx) {

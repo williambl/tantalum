@@ -67,6 +67,11 @@ public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
         return tag;
     }
 
+    public void joinNetwork() {
+        this.pipeNetworkId = PipeNetworkManager.KEY.get(this.level).joinNetwork(this);
+        this.sync();
+    }
+
     public static void tickEntity(Level level, BlockPos blockPos, BlockState blockState, FluidPipeBlockEntity e) {
     }
 
