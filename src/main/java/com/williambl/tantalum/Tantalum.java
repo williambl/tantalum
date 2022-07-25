@@ -8,6 +8,7 @@ import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
+import com.williambl.tantalum.turrets.TurretBlock;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -33,6 +34,9 @@ import org.slf4j.LoggerFactory;
 
 public class Tantalum implements ModInitializer, WorldComponentInitializer {
     public static Logger LOGGER = LoggerFactory.getLogger(Tantalum.class);
+
+    public static Block TURRET_BLOCK = Registry.register(Registry.BLOCK, id("turret"), new TurretBlock(BlockBehaviour.Properties.of(Material.METAL)));
+    public static Item TURRET_ITEM = Registry.register(Registry.ITEM, id("turret"), new BlockItem(TURRET_BLOCK, new Item.Properties()));
 
     public static Registry<LaserType> LASER_REGISTRY = FabricRegistryBuilder.createSimple(LaserType.class, id("laser")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static LaserType REGULAR_LASER = Registry.register(LASER_REGISTRY, id("regular"), new RegularLaser());
