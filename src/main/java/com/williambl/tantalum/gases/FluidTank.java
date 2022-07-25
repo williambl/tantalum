@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class FluidTank extends SingleVariantStorage<FluidVariant> {
+public class FluidTank extends SingleVariantStorage<FluidVariant> {
     private final long capacity;
 
     public FluidTank(long capacity) {
@@ -30,7 +30,7 @@ public abstract class FluidTank extends SingleVariantStorage<FluidVariant> {
         this.onCloseExtra(transaction, result);
     }
 
-    public abstract void onCloseExtra(TransactionContext transaction, TransactionContext.Result result);
+    public void onCloseExtra(TransactionContext transaction, TransactionContext.Result result) {}
 
     public CompoundTag toNbt() {
         var tag = new CompoundTag();

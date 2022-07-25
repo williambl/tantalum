@@ -24,6 +24,11 @@ repositories {
     }
 
     maven {
+        name = 'Ladysnake Mods'
+        url = 'https://ladysnake.jfrog.io/artifactory/mods'
+    }
+
+    maven {
         name 'JitPack'
         url 'https://jitpack.io'
     }
@@ -60,6 +65,15 @@ dependencies {
     }
 
     modImplementation("TechReborn:TechReborn-1.18:${tr_version}"){
+        exclude(group: "net.fabricmc.fabric-api")
+        exclude(module: "fabric-loader")
+    }
+
+    modImplementation include ("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cc_version}"){
+        exclude(group: "net.fabricmc.fabric-api")
+        exclude(module: "fabric-loader")
+    }
+    modImplementation include ("dev.onyxstudios.cardinal-components-api:cardinal-components-world:${cc_version}"){
         exclude(group: "net.fabricmc.fabric-api")
         exclude(module: "fabric-loader")
     }

@@ -23,12 +23,7 @@ import static net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants.BUCKET;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
-    private final FluidTank tank = new FluidTank(BUCKET * 10) {
-        @Override
-        public void onCloseExtra(TransactionContext transaction, TransactionContext.Result result) {
-            FluidPipeBlockEntity.this.setChanged();
-        }
-    };
+    public int pipeNetworkId;
 
     public FluidPipeBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(Tantalum.FLUID_PIPE_BLOCK_ENTITY, blockPos, blockState);
@@ -37,24 +32,27 @@ public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        var fluidTag = this.tank.toNbt();
-        tag.put("tank", fluidTag);
+        tag.putInt("pipeNetwork", this.pipeNetworkId);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        this.tank.fromNbt(tag.getCompound("tank"));
+        this.pipeNetworkId = tag.getInt("pipeNetwork");
     }
 
     @Override
     public FluidTank getTank(Direction context) {
-        return this.tank;
+        return this.getFluidTank();
     }
 
     @Nullable
     public FluidTank getFluidTank() {
-        return this.tank;
+        return null; //TODO
+    }
+
+    public int getPipeNetworkId() {
+        return this.pipeNetworkId;
     }
 
     @Override
@@ -65,9 +63,6 @@ public class FluidPipeBlockEntity extends BlockEntity implements HasTank {
     }
 
     public static void tickEntity(Level level, BlockPos blockPos, BlockState blockState, FluidPipeBlockEntity e) {
-        if (level instanceof ServerLevel sLevel) {
-            PipeManager.addPipe(sLevel, blockPos, e);
-        }
     }
 
     /**

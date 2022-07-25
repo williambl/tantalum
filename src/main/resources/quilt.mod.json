@@ -25,6 +25,9 @@
       ],
       "pre_launch": [
         "com.williambl.tantalum.TantalumPreLaunch"
+      ],
+      "cardinal-components-world": [
+        "com.williambl.tantalum.Tantalum"
       ]
     },
     "intermediate_mappings":"net.fabricmc:intermediary"
@@ -34,5 +37,8 @@
   ],
   "minecraft": {
     "environment": "*"
-  }
+  },
+  "cardinal_components": [
+    "tantalum:pipe_graphs"
+  ]
 }
