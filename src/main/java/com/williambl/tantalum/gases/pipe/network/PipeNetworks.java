@@ -1,7 +1,13 @@
 package com.williambl.tantalum.gases.pipe.network;
 
+import com.google.common.graph.ImmutableNetwork;
 import com.google.common.graph.MutableNetwork;
+import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.williambl.tantalum.Tantalum;
 import com.williambl.tantalum.Util;
 import com.williambl.tantalum.gases.FluidPipeBlockEntity;
 import com.williambl.tantalum.gases.FluidTank;
@@ -13,12 +19,42 @@ import net.minecraft.core.Direction;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class PipeNetworks {
+    public static final Codec<MutableNetwork<Node, Edge>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Util.setCodec(Node.CODEC).fieldOf("nodes").forGetter(Network::nodes),
+            Util.setCodec(Edge.CODEC).fieldOf("edges").forGetter(Network::edges)
+    ).apply(instance, PipeNetworks::createPipeNetwork));
+
     public static MutableNetwork<Node, Edge> createPipeNetwork() {
         return NetworkBuilder.undirected().build();
+    }
+
+    public static MutableNetwork<Node, Edge> createPipeNetwork(Set<Node> nodes, Set<Edge> edges) {
+        var network = createPipeNetwork();
+        nodes.forEach(network::addNode);
+        edges.forEach(edge -> {
+            Node u = null;
+            Node v = null;
+            for (var node : nodes) {
+                if (node.pos().equals(edge.posA())) {
+                    u = node;
+                } else if (node.pos().equals(edge.posB())) {
+                    v = node;
+                }
+            }
+
+            if (u != null && v != null) {
+                network.addEdge(u, v, edge);
+            } else {
+                Tantalum.LOGGER.warn("Edge {} doesn't correspond to any nodes!", edge);
+            }
+        });
+
+        return network;
     }
 
     public static void addPipe(MutableNetwork<Node, Edge> network, FluidPipeBlockEntity pipe, Iterable<FluidPipeBlockEntity> neighbours, Consumer<BlockPos> markDirty) {
@@ -92,12 +128,24 @@ public final class PipeNetworks {
     }
 
     public record Node(FluidTank tank, BlockPos pos) {
+        public static final Codec<Node> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                FluidTank.CODEC.fieldOf("tank").forGetter(Node::tank),
+                BlockPos.CODEC.fieldOf("pos").forGetter(Node::pos)
+        ).apply(instance, Node::new));
+
         public Node(FluidPipeBlockEntity pipe) {
             this(new FluidTank(10 * FluidConstants.BUCKET), pipe.getBlockPos());
         }
     }
 
     public static final class Edge {
+        public static final Codec<Edge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                FluidTank.CODEC.fieldOf("tank").forGetter(Edge::tank),
+                BlockPos.CODEC.fieldOf("minPosExclusive").forGetter(Edge::posA),
+                BlockPos.CODEC.fieldOf("maxPosExclusive").forGetter(Edge::posB),
+                Codec.LONG.fieldOf("flowSpeed").forGetter(Edge::flowSpeed)
+        ).apply(instance, Edge::new));
+
         private final FluidTank tank;
         private final BlockPos minPosExclusive;
         private final BlockPos maxPosExclusive;

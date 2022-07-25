@@ -1,5 +1,6 @@
 package com.williambl.tantalum.gases;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -8,10 +9,16 @@ import net.minecraft.nbt.CompoundTag;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FluidTank extends SingleVariantStorage<FluidVariant> {
+    public static final Codec<FluidTank> CODEC = CompoundTag.CODEC.xmap(FluidTank::new, FluidTank::toNbt);
     private final long capacity;
 
     public FluidTank(long capacity) {
         this.capacity = capacity;
+    }
+
+    public FluidTank(CompoundTag tag) {
+        this(tag.getLong("capacity"));
+        this.fromNbt(tag);
     }
 
     @Override
@@ -36,6 +43,7 @@ public class FluidTank extends SingleVariantStorage<FluidVariant> {
         var tag = new CompoundTag();
         tag.put("fluidVariant", this.variant.toNbt());
         tag.putLong("amount", this.amount);
+        tag.putLong("capacity", this.capacity);
         return tag;
     }
 

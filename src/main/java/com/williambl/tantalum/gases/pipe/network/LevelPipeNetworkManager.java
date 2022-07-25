@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
@@ -127,12 +128,18 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
 
     @Override
     public void readFromNbt(CompoundTag tag) {
-
+        tag.getCompound("networks").getAllKeys().forEach(key -> {
+            this.networks.put(Integer.parseInt(key), PipeNetworks.CODEC.decode(NbtOps.INSTANCE, tag.get(key)).getOrThrow(false, Tantalum.LOGGER::error).getFirst());
+        });
     }
 
     @Override
     public void writeToNbt(CompoundTag tag) {
-
+        var networksTag = new CompoundTag();
+        this.networks.forEach((i, n) -> {
+            networksTag.put(i.toString(), PipeNetworks.CODEC.encodeStart(NbtOps.INSTANCE, n).getOrThrow(true, Tantalum.LOGGER::error));
+        });
+        tag.put("networks", networksTag);
     }
 
     private void updatePipeBlock(BlockPos pos) {
