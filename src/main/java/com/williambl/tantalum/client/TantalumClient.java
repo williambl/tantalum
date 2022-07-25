@@ -1,6 +1,7 @@
 package com.williambl.tantalum.client;
 
 import com.williambl.tantalum.gases.FluidPipeBlockEntity;
+import com.williambl.tantalum.gases.pipe.network.PipeNetworks;
 import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.Tantalum;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
@@ -15,7 +16,9 @@ public class TantalumClient implements ClientModInitializer {
         BlockEntityRendererRegistry.register(Tantalum.LASER_EMITTER_BLOCK_ENTITY, LaserEmitterRenderer::new);
         LaserEmitterBlockEntity.initClientNetworking();
         FluidPipeBlockEntity.initClientNetworking();
-        var pipeDebugRenderer = new PipeDebugRenderer();
-        WorldRenderEvents.LAST.register(pipeDebugRenderer::render);
+        if (PipeNetworks.SYNC_TO_CLIENTS_FOR_DEBUGGING) {
+            var pipeDebugRenderer = new PipeDebugRenderer();
+            WorldRenderEvents.LAST.register(pipeDebugRenderer::render);
+        }
     }
 }

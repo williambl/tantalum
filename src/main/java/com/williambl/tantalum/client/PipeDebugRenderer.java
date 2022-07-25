@@ -60,6 +60,8 @@ public class PipeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             final double filledFraction = (double) edge.tank().getAmount() / (double) edge.tank().getCapacity();
             var colour = getColourAsFloats(getColour(filledFraction));
             renderLine(Vec3.atCenterOf(edge.posA()).subtract(camX, camY, camZ), Vec3.atCenterOf(edge.posB()).subtract(camX, camY, camZ), colour[0], colour[1], colour[2]);
+            Vec3 midpoint = Vec3.atBottomCenterOf(edge.posA()).add(Vec3.atCenterOf(edge.posB())).scale(0.5).add(0.0, 1.2, 0.0);
+            DebugRenderer.renderFloatingText(""+edge.tank().getAmount(), midpoint.x(), midpoint.y(), midpoint.z(), 0xffffff);
         });
     }
 
