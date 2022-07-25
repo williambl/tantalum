@@ -79,8 +79,6 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer {
                 return null;
             }
         }, AIR_COLLECTOR_BLOCK_ENTITY, FLUID_PIPE_BLOCK_ENTITY);
-
-        ServerWorldTickEvents.END.register((server, world) -> PipeManager.tick(world));
     }
 
     @Override

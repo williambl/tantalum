@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
@@ -29,6 +31,11 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
     @Override
     public MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> getNetwork(int id) {
         return this.networks.get(id);
+    }
+
+    @Override
+    public Int2ObjectMap<MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge>> getNetworks() {
+        return new Int2ObjectOpenHashMap<>(this.networks);
     }
 
     public int addNetwork(MutableNetwork<PipeNetworks.Node, PipeNetworks.Edge> network) {
@@ -140,6 +147,11 @@ public class LevelPipeNetworkManager implements PipeNetworkManager {
             networksTag.put(i.toString(), PipeNetworks.CODEC.encodeStart(NbtOps.INSTANCE, n).getOrThrow(true, Tantalum.LOGGER::error));
         });
         tag.put("networks", networksTag);
+    }
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        return PipeNetworks.SYNC_TO_CLIENTS_FOR_DEBUGGING;
     }
 
     private void updatePipeBlock(BlockPos pos) {

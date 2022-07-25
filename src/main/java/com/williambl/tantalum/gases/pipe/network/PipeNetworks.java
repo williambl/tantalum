@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import org.quiltmc.loader.api.QuiltLoader;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class PipeNetworks {
+    public static final boolean SYNC_TO_CLIENTS_FOR_DEBUGGING = QuiltLoader.isDevelopmentEnvironment();
     public static final Codec<MutableNetwork<Node, Edge>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Util.setCodec(Node.CODEC).fieldOf("nodes").forGetter(Network::nodes),
             Util.setCodec(Edge.CODEC).fieldOf("edges").forGetter(Network::edges)
