@@ -59,7 +59,7 @@ public class TurretBlock extends Block {
         var launcherPos = Vec3.atCenterOf(pos).add(0.0, 1.0, 0.0);
         for (int ticks = 0; ticks < 60; ticks++) {
             var predictedTargetPosition = STRATEGY.predictedTargetPosition(targetPos, targetVel, ticks);
-            if (STRATEGY.maxDistance(ticks, MAX_PROJECTILE_SPEED) > launcherPos.distanceTo(predictedTargetPosition)) {
+            if (STRATEGY.maxDistance(ticks, MAX_PROJECTILE_SPEED) < launcherPos.distanceTo(predictedTargetPosition)) {
                 continue;
             }
 
