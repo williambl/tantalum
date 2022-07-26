@@ -54,8 +54,8 @@ public class TurretBlock extends Block {
 
         var target = targets.get(level.random.nextInt(targets.size()));
 
-        var targetPos = target.getEyePosition();
-        var targetVel = target.getDeltaMovement();
+        var targetPos = target.position().with(Direction.Axis.Y, target.getY(0.5));
+        var targetVel = new Vec3(targetPos.x() - target.xOld, target.getY() - target.yOld, targetPos.z() - target.zOld);
         var launcherPos = Vec3.atCenterOf(pos).add(0.0, 1.0, 0.0);
         for (int ticks = 0; ticks < 60; ticks++) {
             var predictedTargetPosition = STRATEGY.predictedTargetPosition(targetPos, targetVel, ticks);
