@@ -1,10 +1,16 @@
 package com.williambl.tantalum.turrets;
 
+import com.williambl.tantalum.Tantalum;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,8 +24,8 @@ import java.util.Random;
 
 public class TurretBlock extends Block {
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
-    private static final double MAX_PROJECTILE_SPEED = 0.5;
-    private static final TurretStrategy STRATEGY = new StupidTurretStrategy();
+    private static final double MAX_PROJECTILE_SPEED = 2.5;
+    private static final TurretStrategy STRATEGY = new PredictiveTurretStrategy();
 
     public TurretBlock(Properties properties) {
         super(properties);
@@ -47,7 +53,7 @@ public class TurretBlock extends Block {
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
-        var targets = level.getEntitiesOfClass(Player.class, new AABB(pos).inflate(50.0));
+        var targets = level.getEntitiesOfClass(Mob.class, new AABB(pos).inflate(50.0));
         if (targets.isEmpty()) {
             return;
         }
@@ -57,7 +63,7 @@ public class TurretBlock extends Block {
         var targetPos = target.position().with(Direction.Axis.Y, target.getY(0.5));
         var targetVel = new Vec3(targetPos.x() - target.xOld, target.getY() - target.yOld, targetPos.z() - target.zOld);
         var launcherPos = Vec3.atCenterOf(pos).add(0.0, 1.0, 0.0);
-        for (int ticks = 0; ticks < 60; ticks++) {
+        for (int ticks = 0; ticks < 40; ticks++) {
             var predictedTargetPosition = STRATEGY.predictedTargetPosition(targetPos, targetVel, ticks);
             if (STRATEGY.maxDistance(ticks, MAX_PROJECTILE_SPEED) < launcherPos.distanceTo(predictedTargetPosition)) {
                 continue;
