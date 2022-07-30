@@ -8,15 +8,19 @@ import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
+import com.williambl.tantalum.oscillator.Resonance;
 import com.williambl.tantalum.turrets.TurretBlock;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -41,6 +45,8 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer {
     public static Registry<LaserType> LASER_REGISTRY = FabricRegistryBuilder.createSimple(LaserType.class, id("laser")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static LaserType REGULAR_LASER = Registry.register(LASER_REGISTRY, id("regular"), new RegularLaser());
     public static LaserType FIRE_LASER = Registry.register(LASER_REGISTRY, id("fire"), new FireLaser());
+
+    public static EntityType<Resonance> RESONANCE = Registry.register(Registry.ENTITY_TYPE, id("resonance"), FabricEntityTypeBuilder.<Resonance>create().entityFactory(Resonance::new).dimensions(EntityDimensions.scalable(1f, 1f)).build());
 
     public static Block LASER_EMITTER_BLOCK = Registry.register(Registry.BLOCK, id("laser_emitter"), new LaserEmitterBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item LASER_EMITTER_ITEM = Registry.register(Registry.ITEM, id("laser_emitter"), new BlockItem(LASER_EMITTER_BLOCK, new Item.Properties()));
