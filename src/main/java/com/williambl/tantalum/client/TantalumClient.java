@@ -28,5 +28,6 @@ public class TantalumClient implements ClientModInitializer {
             WorldRenderEvents.LAST.register(resonanceDebugRenderer::render);
         }
         EntityRendererRegistry.register(Tantalum.RESONANCE, NoopRenderer::new);
+        EntityRendererRegistry.register(Tantalum.RESONATED_BLOCK, ResonatedBlockRenderer::new);
     }
 }

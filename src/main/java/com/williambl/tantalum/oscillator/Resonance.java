@@ -2,6 +2,7 @@ package com.williambl.tantalum.oscillator;
 
 import com.williambl.tantalum.Tantalum;
 import com.williambl.tantalum.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -12,6 +13,8 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -70,8 +73,13 @@ public class Resonance extends Entity {
         this.setBoundingBox(this.makeBoundingBox());
     }
 
+    /**
+     * The inverse (negative values -> outside, positive values -> inside) SDF function for this resonance.
+     * @param pos the position to get the resonance factor for
+     * @return the resonance factor
+     */
     public double resonanceFactor(Vec3 pos) {
-        return this.getShape().sdf(this, pos, this.getPower());
+        return -1.0 * this.getShape().sdf(this, pos, this.getPower());
     }
 
     @Override
@@ -81,6 +89,22 @@ public class Resonance extends Entity {
 
     @Override
     public void tick() {
+        if (!this.level.isClientSide()) {
+            BlockPos.betweenClosedStream(this.getBoundingBox())
+                    .filter(p -> this.resonanceFactor(Vec3.atCenterOf(p)) > 0)
+                    .filter(p -> this.getLevel().getBlockState(p).getBlock() instanceof LiquidBlock)
+                    .forEach(p -> {
+                        var state = this.getLevel().getBlockState(p);
+                        this.getLevel().setBlockAndUpdate(p, Blocks.AIR.defaultBlockState());
+                        var resonated = new ResonatedBlockEntity(
+                                this.level,
+                                p,
+                                this,
+                                state
+                        );
+                        this.level.addFreshEntity(resonated);
+                    });
+        }
     }
 
     @Override

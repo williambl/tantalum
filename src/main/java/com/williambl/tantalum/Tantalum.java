@@ -9,6 +9,7 @@ import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
 import com.williambl.tantalum.oscillator.Resonance;
+import com.williambl.tantalum.oscillator.ResonatedBlockEntity;
 import com.williambl.tantalum.oscillator.ResonatorBlock;
 import com.williambl.tantalum.oscillator.ResonatorBlockEntity;
 import com.williambl.tantalum.turrets.TurretBlock;
@@ -49,6 +50,7 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer {
     public static LaserType FIRE_LASER = Registry.register(LASER_REGISTRY, id("fire"), new FireLaser());
 
     public static EntityType<Resonance> RESONANCE = Registry.register(Registry.ENTITY_TYPE, id("resonance"), FabricEntityTypeBuilder.<Resonance>create().entityFactory(Resonance::new).dimensions(EntityDimensions.scalable(1f, 1f)).build());
+    public static EntityType<ResonatedBlockEntity> RESONATED_BLOCK = Registry.register(Registry.ENTITY_TYPE, id("resonated_block"), FabricEntityTypeBuilder.<ResonatedBlockEntity>create().entityFactory(ResonatedBlockEntity::new).dimensions(EntityDimensions.fixed(0.98f, 0.98f)).build());
     public static Block RESONATOR_BLOCK = Registry.register(Registry.BLOCK, id("resonator"), new ResonatorBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item RESONATOR_ITEM = Registry.register(Registry.ITEM, id("resonator"), new BlockItem(RESONATOR_BLOCK, new Item.Properties()));
     public static BlockEntityType<ResonatorBlockEntity> RESONATOR_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("resonator"), FabricBlockEntityTypeBuilder.create(ResonatorBlockEntity::new, RESONATOR_BLOCK).build());
