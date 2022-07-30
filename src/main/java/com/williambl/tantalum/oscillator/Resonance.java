@@ -14,10 +14,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.quiltmc.loader.api.QuiltLoader;
 
 import java.util.function.Function;
 
 public class Resonance extends Entity {
+    public static boolean ENABLE_DEBUG_RENDERING = QuiltLoader.isDevelopmentEnvironment();
 
     private static final EntityDataAccessor<Double> POWER_DATA = SynchedEntityData.defineId(Resonance.class, Util.DOUBLE_ENTITY_DATA);
     private static final EntityDataAccessor<Double> FREQUENCY_DATA = SynchedEntityData.defineId(Resonance.class, Util.DOUBLE_ENTITY_DATA);
