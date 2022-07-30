@@ -9,6 +9,8 @@ import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
 import com.williambl.tantalum.oscillator.Resonance;
+import com.williambl.tantalum.oscillator.ResonatorBlock;
+import com.williambl.tantalum.oscillator.ResonatorBlockEntity;
 import com.williambl.tantalum.turrets.TurretBlock;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
@@ -47,6 +49,9 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer {
     public static LaserType FIRE_LASER = Registry.register(LASER_REGISTRY, id("fire"), new FireLaser());
 
     public static EntityType<Resonance> RESONANCE = Registry.register(Registry.ENTITY_TYPE, id("resonance"), FabricEntityTypeBuilder.<Resonance>create().entityFactory(Resonance::new).dimensions(EntityDimensions.scalable(1f, 1f)).build());
+    public static Block RESONATOR_BLOCK = Registry.register(Registry.BLOCK, id("resonator"), new ResonatorBlock(BlockBehaviour.Properties.of(Material.METAL)));
+    public static Item RESONATOR_ITEM = Registry.register(Registry.ITEM, id("resonator"), new BlockItem(RESONATOR_BLOCK, new Item.Properties()));
+    public static BlockEntityType<ResonatorBlockEntity> RESONATOR_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("resonator"), FabricBlockEntityTypeBuilder.create(ResonatorBlockEntity::new, RESONATOR_BLOCK).build());
 
     public static Block LASER_EMITTER_BLOCK = Registry.register(Registry.BLOCK, id("laser_emitter"), new LaserEmitterBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item LASER_EMITTER_ITEM = Registry.register(Registry.ITEM, id("laser_emitter"), new BlockItem(LASER_EMITTER_BLOCK, new Item.Properties()));
