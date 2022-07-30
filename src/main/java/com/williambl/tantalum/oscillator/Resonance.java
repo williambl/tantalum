@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
@@ -21,9 +22,7 @@ import java.util.function.Function;
 public class Resonance extends Entity {
     public static boolean ENABLE_DEBUG_RENDERING = QuiltLoader.isDevelopmentEnvironment();
 
-    private static final EntityDataAccessor<Double> POWER_DATA = SynchedEntityData.defineId(Resonance.class, Util.DOUBLE_ENTITY_DATA);
-    private static final EntityDataAccessor<Double> FREQUENCY_DATA = SynchedEntityData.defineId(Resonance.class, Util.DOUBLE_ENTITY_DATA);
-    private static final EntityDataAccessor<Shape> SHAPE_DATA = SynchedEntityData.defineId(Resonance.class, Util.enumEntityData(Shape.class));
+    private static final EntityDataAccessor<CompoundTag> RESONANCE_DATA = SynchedEntityData.defineId(Resonance.class, EntityDataSerializers.COMPOUND_TAG);
 
     public Resonance(EntityType<? extends Resonance> type, Level level) {
         super(type, level);
@@ -41,27 +40,33 @@ public class Resonance extends Entity {
     }
 
     public double getPower() {
-        return this.getEntityData().get(POWER_DATA);
+        return this.getEntityData().get(RESONANCE_DATA).getDouble("power");
     }
 
     public double getFrequency() {
-        return this.getEntityData().get(FREQUENCY_DATA);
+        return this.getEntityData().get(RESONANCE_DATA).getDouble("frequency");
     }
 
     public Shape getShape() {
-        return this.getEntityData().get(SHAPE_DATA);
+        return Shape.byName(this.getEntityData().get(RESONANCE_DATA).getString("shape"));
     }
 
     public void setPower(double value) {
-        this.getEntityData().set(POWER_DATA, value);
+        var data = new CompoundTag().merge(this.getEntityData().get(RESONANCE_DATA));
+        data.putDouble("power", value);
+        this.getEntityData().set(RESONANCE_DATA, data);
     }
 
     public void setFrequency(double value) {
-        this.getEntityData().set(FREQUENCY_DATA, value);
+        var data = new CompoundTag().merge(this.getEntityData().get(RESONANCE_DATA));
+        data.putDouble("frequency", value);
+        this.getEntityData().set(RESONANCE_DATA, data);
     }
 
     public void setShape(Shape shape) {
-        this.getEntityData().set(SHAPE_DATA, shape);
+        var data = new CompoundTag().merge(this.getEntityData().get(RESONANCE_DATA));
+        data.putString("shape", shape.getSerializedName());
+        this.getEntityData().set(RESONANCE_DATA, data);
         this.setBoundingBox(this.makeBoundingBox());
     }
 
@@ -80,9 +85,7 @@ public class Resonance extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        this.getEntityData().define(POWER_DATA, 1.0);
-        this.getEntityData().define(FREQUENCY_DATA, 1.0);
-        this.getEntityData().define(SHAPE_DATA, Shape.SPHERE);
+        this.getEntityData().define(RESONANCE_DATA, new CompoundTag());
     }
 
     @Override
@@ -118,7 +121,7 @@ public class Resonance extends Entity {
         SPHERE(
                 "sphere",
                 (source, point, power) -> source.position().distanceTo(point) - power*2.5,
-                resonance -> AABB.ofSize(resonance.position(), resonance.getPower() * 2.5, resonance.getPower() * 2.5, resonance.getPower() * 2.5)
+                resonance -> AABB.ofSize(resonance.position(), resonance.getPower() * 2.5 * 2, resonance.getPower() * 2.5 * 2, resonance.getPower() * 2.5 * 2)
         ),
         CYLINDER(
                 "cylinder",
@@ -139,7 +142,7 @@ public class Resonance extends Entity {
 
             return Math.signum(d)*Math.sqrt(Math.abs(d))/baba;
         },
-                resonance -> AABB.ofSize(resonance.position().add(resonance.getLookAngle().scale(resonance.getPower() * 2.5)), resonance.getPower() * 2.5, resonance.getPower() * 2.5, resonance.getPower() * 2.5)
+                resonance -> AABB.ofSize(resonance.position().add(resonance.getLookAngle().scale(resonance.getPower() * 2.5)), resonance.getPower() * 2.5 * 2, resonance.getPower() * 2.5 * 2, resonance.getPower() * 2.5 * 2)
         ),
         ;
 
