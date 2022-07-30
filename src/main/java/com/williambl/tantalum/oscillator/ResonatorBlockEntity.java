@@ -63,11 +63,11 @@ public class ResonatorBlockEntity extends PowerAcceptorBlockEntity {
 
     @Override
     public void tick(Level world, BlockPos pos, BlockState state, MachineBaseBlockEntity blockEntity2) {
-        super.tick(world, pos, state, blockEntity2);
         if (world instanceof ServerLevel serverLevel) {
             long energyToUse = this.getStored();
             this.getOrCreateResonance(serverLevel).setPower(energyToUse);
             this.useEnergy(energyToUse);
         }
+        super.tick(world, pos, state, blockEntity2);
     }
 }

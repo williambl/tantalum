@@ -77,7 +77,7 @@ public class ResonatedBlockEntity extends Entity {
     public @Nullable Resonance getResonance() {
         if (this.level instanceof ServerLevel serverLevel) {
             var e = serverLevel.getEntity(this.resonance);
-            if (e instanceof Resonance res && res.isAlive() && res.resonanceFactor(this.position()) >= 0) {
+            if (e instanceof Resonance res && res.isAlive() && res.resonanceFactor(this.position()) >= 1.0) {
                 return res;
             }
         }

@@ -9,12 +9,18 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -91,18 +97,17 @@ public class Resonance extends Entity {
     public void tick() {
         if (!this.level.isClientSide()) {
             BlockPos.betweenClosedStream(this.getBoundingBox())
-                    .filter(p -> this.resonanceFactor(Vec3.atCenterOf(p)) > 0)
-                    .filter(p -> this.getLevel().getBlockState(p).getBlock() instanceof LiquidBlock)
+                    .filter(p -> this.resonanceFactor(Vec3.atCenterOf(p)) >= 0)
                     .forEach(p -> {
-                        var state = this.getLevel().getBlockState(p);
-                        this.getLevel().setBlockAndUpdate(p, Blocks.AIR.defaultBlockState());
-                        var resonated = new ResonatedBlockEntity(
-                                this.level,
-                                p,
-                                this,
-                                state
-                        );
-                        this.level.addFreshEntity(resonated);
+                        var blockState = this.getLevel().getBlockState(p);
+                        var material = blockState.getMaterial();
+                        if (blockState.getBlock() instanceof BucketPickup bucketPickup) {
+                            bucketPickup.pickupBlock(this.level, p, blockState);
+                        } else if (blockState.getBlock() instanceof LiquidBlock) {
+                            this.level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                        } else if (material == Material.WATER_PLANT || material == Material.REPLACEABLE_WATER_PLANT) {
+                            this.level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                        }
                     });
         }
     }
