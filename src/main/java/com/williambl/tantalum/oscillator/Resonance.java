@@ -118,6 +118,11 @@ public class Resonance extends Entity {
     }
 
     @Override
+    public boolean shouldBeSaved() {
+        return false;
+    }
+
+    @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
         this.setPower(compound.getDouble("power"));
         this.setFrequency(compound.getDouble("frequency"));
