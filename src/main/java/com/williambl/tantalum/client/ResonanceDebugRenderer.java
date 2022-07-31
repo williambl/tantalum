@@ -1,17 +1,13 @@
 package com.williambl.tantalum.client;
 
-import com.google.common.graph.MutableNetwork;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.williambl.tantalum.gases.pipe.network.PipeNetworkManager;
-import com.williambl.tantalum.gases.pipe.network.PipeNetworks;
-import com.williambl.tantalum.oscillator.Resonance;
+import com.williambl.tantalum.resonator.Resonance;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.debug.DebugRenderer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;

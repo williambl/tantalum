@@ -1,8 +1,6 @@
-package com.williambl.tantalum.oscillator;
+package com.williambl.tantalum.resonator;
 
 import com.williambl.tantalum.Tantalum;
-import com.williambl.tantalum.laser.LaserEmitterBlock;
-import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

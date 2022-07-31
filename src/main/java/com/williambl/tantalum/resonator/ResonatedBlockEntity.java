@@ -1,6 +1,5 @@
-package com.williambl.tantalum.oscillator;
+package com.williambl.tantalum.resonator;
 
-import com.mojang.logging.LogUtils;
 import com.williambl.tantalum.Tantalum;
 import com.williambl.tantalum.mixin.FallingBlockEntityAccessor;
 import net.minecraft.CrashReportCategory;
@@ -28,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.UUID;
 import java.util.function.Predicate;

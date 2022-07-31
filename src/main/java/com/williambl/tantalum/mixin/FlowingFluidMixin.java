@@ -1,11 +1,10 @@
 package com.williambl.tantalum.mixin;
 
-import com.williambl.tantalum.oscillator.Resonance;
+import com.williambl.tantalum.resonator.Resonance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FlowingFluid;

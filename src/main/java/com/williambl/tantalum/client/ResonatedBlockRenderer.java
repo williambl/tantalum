@@ -1,7 +1,7 @@
 package com.williambl.tantalum.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.williambl.tantalum.oscillator.ResonatedBlockEntity;
+import com.williambl.tantalum.resonator.ResonatedBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
