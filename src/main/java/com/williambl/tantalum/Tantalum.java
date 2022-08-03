@@ -8,11 +8,16 @@ import com.williambl.tantalum.laser.LaserEmitterBlockEntity;
 import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
+import com.williambl.tantalum.nethershift.EntityNetherShiftingComponent;
+import com.williambl.tantalum.nethershift.NetherShiftingComponent;
 import com.williambl.tantalum.resonator.Resonance;
 import com.williambl.tantalum.resonator.ResonatedBlockEntity;
 import com.williambl.tantalum.resonator.ResonatorBlock;
 import com.williambl.tantalum.resonator.ResonatorBlockEntity;
 import com.williambl.tantalum.turrets.TurretBlock;
+import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
+import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
+import dev.onyxstudios.cca.api.v3.entity.RespawnCopyStrategy;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -24,6 +29,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +44,7 @@ import org.quiltmc.qsl.registry.attachment.api.RegistryEntryAttachment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Tantalum implements ModInitializer, WorldComponentInitializer {
+public class Tantalum implements ModInitializer, WorldComponentInitializer, EntityComponentInitializer {
     public static Logger LOGGER = LoggerFactory.getLogger(Tantalum.class);
 
     public static Block TURRET_BLOCK = Registry.register(Registry.BLOCK, id("turret"), new TurretBlock(BlockBehaviour.Properties.of(Material.METAL)));
@@ -100,5 +106,10 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer {
     @Override
     public void registerWorldComponentFactories(WorldComponentFactoryRegistry registry) {
         registry.register(PipeNetworkManager.KEY, LevelPipeNetworkManager::new);
+    }
+
+    @Override
+    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerForPlayers(NetherShiftingComponent.KEY, EntityNetherShiftingComponent::new, RespawnCopyStrategy.NEVER_COPY);
     }
 }

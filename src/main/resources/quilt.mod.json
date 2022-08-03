@@ -39,6 +39,7 @@
     "environment": "*"
   },
   "cardinal-components": [
-    "tantalum:pipe_network_manager"
+    "tantalum:pipe_network_manager",
+    "tantalum:nether_shifting"
   ]
 }
