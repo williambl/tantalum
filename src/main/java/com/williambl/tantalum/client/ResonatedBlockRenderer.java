@@ -46,7 +46,7 @@ public class ResonatedBlockRenderer extends EntityRenderer<ResonatedBlockEntity>
 						matrixStack,
 						buffer.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(blockState)),
 						false,
-						new Random(),
+						level.random,
 						blockState.getSeed(entity.getStartPos()),
 						OverlayTexture.NO_OVERLAY
 					);

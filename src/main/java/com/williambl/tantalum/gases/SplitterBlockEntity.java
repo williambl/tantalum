@@ -3,6 +3,7 @@ package com.williambl.tantalum.gases;
 import com.williambl.tantalum.Tantalum;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -99,7 +100,7 @@ public class SplitterBlockEntity extends PowerAcceptorBlockEntity implements Has
             try (var transaction = Transaction.openOuter()) {
                 var other = FluidStorage.SIDED.find(this.level, pos.relative(dir), dir.getOpposite());
                 if (other != null) {
-                    for (var storage : other.iterable(transaction)) {
+                    for (StorageView<FluidVariant> storage : other) {
                         if (!storage.isResourceBlank()) {
                             var amount = this.getFluidTank().insert(storage.getResource(), BOTTLE, transaction);
                             other.extract(storage.getResource(), amount, transaction);
@@ -117,7 +118,7 @@ public class SplitterBlockEntity extends PowerAcceptorBlockEntity implements Has
             var mainTank = this.tanks.get(0);
             if (mainTank.amount > 0) {
                 var amountExtractedForSplitting = mainTank.extract(mainTank.variant, BOTTLE, transaction);
-                var splittingResult = Tantalum.FLUID_COMPOSITION.getValue(mainTank.variant.getFluid()).get().split(amountExtractedForSplitting);
+                var splittingResult = Tantalum.FLUID_COMPOSITION.get(mainTank.variant.getFluid()).get().split(amountExtractedForSplitting);
                 for (var entry : splittingResult.entrySet()) {
                     if (entry.getKey().isSame(Fluids.EMPTY) || this.combinedTanks.insert(FluidVariant.of(entry.getKey()), entry.getValue(), transaction) != entry.getValue()) {
                         transaction.abort();

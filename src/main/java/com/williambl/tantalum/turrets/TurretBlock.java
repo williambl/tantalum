@@ -1,16 +1,12 @@
 package com.williambl.tantalum.turrets;
 
-import com.williambl.tantalum.Tantalum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.monster.Vex;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,8 +15,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Random;
 
 public class TurretBlock extends Block {
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
@@ -52,7 +46,7 @@ public class TurretBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         var targets = level.getEntitiesOfClass(Mob.class, new AABB(pos).inflate(50.0));
         if (targets.isEmpty()) {
             return;
