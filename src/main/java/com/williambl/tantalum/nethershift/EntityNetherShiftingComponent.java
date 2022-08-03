@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 public class EntityNetherShiftingComponent implements NetherShiftingComponent {
     private final Entity entity;
 
-    private ShiftingState shiftingState;
+    private ShiftingState shiftingState = new ShiftingState.NotShifting();
 
     public EntityNetherShiftingComponent(Entity entity) {
         this.entity = entity;
@@ -67,6 +67,8 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
             var destination = this.entity.position().add(shifting.distanceTravelledCharging().scale(8.0));
             this.entity.teleportToWithTicket(destination.x(), destination.y(), destination.z());
         }
+
+        this.shiftingState = newState;
     }
 
     private sealed interface ShiftingState {

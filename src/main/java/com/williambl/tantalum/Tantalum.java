@@ -9,6 +9,7 @@ import com.williambl.tantalum.laser.LaserType;
 import com.williambl.tantalum.laser.lasers.FireLaser;
 import com.williambl.tantalum.laser.lasers.RegularLaser;
 import com.williambl.tantalum.nethershift.EntityNetherShiftingComponent;
+import com.williambl.tantalum.nethershift.NetherShifterItem;
 import com.williambl.tantalum.nethershift.NetherShiftingComponent;
 import com.williambl.tantalum.resonator.Resonance;
 import com.williambl.tantalum.resonator.ResonatedBlockEntity;
@@ -63,6 +64,8 @@ public class Tantalum implements ModInitializer, WorldComponentInitializer, Enti
     public static Block LASER_EMITTER_BLOCK = Registry.register(Registry.BLOCK, id("laser_emitter"), new LaserEmitterBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item LASER_EMITTER_ITEM = Registry.register(Registry.ITEM, id("laser_emitter"), new BlockItem(LASER_EMITTER_BLOCK, new Item.Properties()));
     public static BlockEntityType<LaserEmitterBlockEntity> LASER_EMITTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, id("laser_emitter"), FabricBlockEntityTypeBuilder.create(LaserEmitterBlockEntity::new, LASER_EMITTER_BLOCK).build());
+
+    public static Item NETHER_SHIFTER = Registry.register(Registry.ITEM, id("nether_shifter"), new NetherShifterItem(new Item.Properties().stacksTo(1)));
 
     public static Block AIR_COLLECTOR_BLOCK = Registry.register(Registry.BLOCK, id("air_collector"), new AirCollectorBlock(BlockBehaviour.Properties.of(Material.METAL)));
     public static Item AIR_COLLECTOR_ITEM = Registry.register(Registry.ITEM, id("air_collector"), new BlockItem(AIR_COLLECTOR_BLOCK, new Item.Properties()));

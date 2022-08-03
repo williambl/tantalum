@@ -28,6 +28,9 @@
       ],
       "cardinal-components-world": [
         "com.williambl.tantalum.Tantalum"
+      ],
+      "cardinal-components-entity": [
+        "com.williambl.tantalum.Tantalum"
       ]
     },
     "intermediate_mappings":"net.fabricmc:intermediary"
