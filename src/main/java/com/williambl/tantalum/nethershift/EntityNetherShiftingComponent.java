@@ -2,6 +2,7 @@ package com.williambl.tantalum.nethershift;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -18,6 +19,7 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
     @Override
     public void startShift(int ticksToShift) {
         this.shiftingState = new ShiftingState.Charging(ticksToShift, this.entity.level.getGameTime()+ticksToShift, this.entity.position());
+        NetherShiftingComponent.KEY.sync(this.entity);
     }
 
     @Override
@@ -61,14 +63,31 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
 
     @Override
     public void serverTick() {
-        var newState = this.shiftingState.nextState(this.entity);
+        var oldState = this.shiftingState;
+        this.shiftingState = this.shiftingState.nextState(this.entity);
 
-        if (this.shiftingState instanceof ShiftingState.Charging && newState instanceof ShiftingState.Shifting shifting) {
-            var destination = this.entity.position().add(shifting.distanceTravelledCharging().scale(8.0));
+        if (oldState instanceof ShiftingState.Charging && this.shiftingState instanceof ShiftingState.Shifting shifting) {
+            var destination = shifting.destination();
+            this.entity.teleportToWithTicket(destination.x(), destination.y(), destination.z());
+            this.entity.setDeltaMovement(Vec3.ZERO);
+            if (this.entity instanceof ServerPlayer player) {
+                player.connection.send(new ClientboundSetEntityMotionPacket(player.getId(), player.getDeltaMovement()));
+            }
+        } else if (oldState instanceof ShiftingState.Shifting shifting) {
+            this.entity.setDeltaMovement(shifting.velocity());
+            if (this.entity instanceof ServerPlayer player) {
+                player.connection.send(new ClientboundSetEntityMotionPacket(player.getId(), player.getDeltaMovement()));
+            }
+        }
+
+        if (this.shiftingState instanceof ShiftingState.Shifting shifting) {
+            var destination = shifting.destination();
             this.entity.teleportToWithTicket(destination.x(), destination.y(), destination.z());
         }
 
-        this.shiftingState = newState;
+        if (oldState != this.shiftingState) {
+            NetherShiftingComponent.KEY.sync(this.entity);
+        }
     }
 
     private sealed interface ShiftingState {
@@ -107,14 +126,15 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
             }
         }
 
-        final record Charging(int ticksToShift, long timeChargingComplete, Vec3 posAtChargeStart) implements ShiftingState {
+        record Charging(int ticksToShift, long timeChargingComplete, Vec3 posAtChargeStart) implements ShiftingState {
             @Override
             public ShiftingState nextState(Entity entity) {
                 return this.timeChargingComplete() - entity.getLevel().getGameTime() <= 0 ?
                         new Shifting(
                                 this.ticksToShift(),
                                 entity.getLevel().getGameTime() + this.ticksToShift(),
-                                entity.position().subtract(this.posAtChargeStart())
+                                entity.position().add(entity.position().subtract(this.posAtChargeStart()).scale(8.0)),
+                                entity.position().subtract(entity.xOld, entity.yOld, entity.zOld)
                         )
                         : this;
             }
@@ -133,7 +153,7 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
             }
         }
 
-        final record Shifting(int ticksToShift, long timeShiftingComplete, Vec3 distanceTravelledCharging) implements ShiftingState {
+        record Shifting(int ticksToShift, long timeShiftingComplete, Vec3 destination, Vec3 velocity) implements ShiftingState {
             @Override
             public ShiftingState nextState(Entity entity) {
                 return this.timeShiftingComplete() - entity.getLevel().getGameTime() <= 0 ?
@@ -145,13 +165,16 @@ public class EntityNetherShiftingComponent implements NetherShiftingComponent {
             public void writeCustomToBytes(FriendlyByteBuf buf) {
                 buf.writeVarInt(this.ticksToShift());
                 buf.writeVarLong(this.timeShiftingComplete());
-                buf.writeDouble(this.distanceTravelledCharging().x());
-                buf.writeDouble(this.distanceTravelledCharging().y());
-                buf.writeDouble(this.distanceTravelledCharging().z());
+                buf.writeDouble(this.destination().x());
+                buf.writeDouble(this.destination().y());
+                buf.writeDouble(this.destination().z());
+                buf.writeDouble(this.velocity().x());
+                buf.writeDouble(this.velocity().y());
+                buf.writeDouble(this.velocity().z());
             }
 
             static Shifting fromBuf(FriendlyByteBuf buf) {
-                return new Shifting(buf.readVarInt(), buf.readVarLong(), new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
+                return new Shifting(buf.readVarInt(), buf.readVarLong(), new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()), new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
             }
         }
     }
